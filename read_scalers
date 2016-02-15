@@ -1,0 +1,28 @@
+#!/bin/bash
+# reads all scalers in a condor job
+
+f="reader.bat"
+outdir="datfiles"
+indir="sca2012"
+
+echo "Executable = sca_read_bin.o" > $f
+echo "Universe = vanilla" >> $f
+echo "notification = never" >> $f
+echo "getenv = True" >> $f
+echo "+Experiment = \"star\"" >> $f
+echo "+Job_Type = \"cas\"" >> $f
+echo  >> $f
+
+mkdir -p log
+rm log/*
+for file in $(ls $indir); do
+  echo "Arguments = $indir/$file" >> $f
+  runnum=$(echo $file | cut -c4-11)
+  echo "Log = log/run$runnum.log" >> $f
+  echo "Output = log/run$runnum.out" >> $f
+  echo "Error = log/run$runnum.err" >> $f
+  echo "Queue" >> $f
+  echo >> $f
+done
+
+condor_submit $f

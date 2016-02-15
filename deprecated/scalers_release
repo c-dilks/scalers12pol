@@ -1,0 +1,33 @@
+#!/bin/bash
+# generates scalers_release directory, which contains minimal rellum code
+
+scalers_release_dir=../scalers_release
+echo "WARNING!!!  rm'ing $scalers_release_dir in 5 seconds (^C to halt)"
+sleep 5
+mkdir -p $scalers_release_dir
+rm -r $scalers_release_dir
+mkdir -p $scalers_release_dir
+
+# copy top level executables
+find . -maxdepth 1 -perm -u=x -type f > executables
+while read line; do cp -v $line $scalers_release_dir; done < executables
+rm executables
+
+# copy rootfiles 
+#cp -rvH *.root $scalers_release_dir
+
+# copy documentation and text files
+cp -v doc* $scalers_release_dir
+cp *.txt $scalers_release_dir
+cp *.dat $scalers_release_dir
+
+# copy some subdirs and make others
+cp -r beam $scalers_release_dir/
+mkdir $scalers_release_dir/datfiles
+cp -r hpss $scalers_release_dir/
+cp -r matrix $scalers_release_dir/
+rm $scalers_release_dir/matrix/rootfiles/*.root
+mkdir $scalers_release_dir/pdf_bXings_fills
+mkdir $scalers_release_dir/pdf_bXings_runs
+mkdir $scalers_release_dir/png_rellum
+cp -r zchang_code $scalers_release_dir/

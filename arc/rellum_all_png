@@ -1,0 +1,8 @@
+#!/bin/bash
+# runs rellum*.C for all possible triggers and indep. vars
+# see output in pngs/ directory
+
+rm png_rellum/*.png
+root -b -q 'rellum4.C("i",1)'
+root -b -q 'rellum4.C("fi",1)'
+root -b -q 'rellum4.C("bx",1)'

@@ -1,0 +1,1134 @@
+<html>
+<head>
+<title>Run12 pp510 Relative Luminosity</title>
+<body bgcolor=#F6F3EC>
+<center>
+  <h1>Run12 pp510 Relative Luminosity</h1>
+  <a href='http://www.star.bnl.gov/protected/spin/dilks/scalers2011t/index.html'>Run11 pp500 (T)</a>
+  &nbsp;|&nbsp;
+  <a href='http://www.star.bnl.gov/protected/spin/dilks/scalers2012t/index.html'>Run12 pp200 (T)</a>
+  &nbsp;|&nbsp;
+  <a href='http://www.star.bnl.gov/protected/spin/dilks/scalers2012/index.html'>Run12 pp510 (L)</a>
+  &nbsp;|&nbsp;
+  <a href='http://www.star.bnl.gov/protected/spin/dilks/scalers2013/index.html'>Run13 pp510 (L)</a>
+  &nbsp;|&nbsp;
+  <a href='http://www.star.bnl.gov/protected/spin/dilks/scalers2015t/index.html'>Run15 pp200 (T/L)</a>
+  &nbsp;|&nbsp;
+  <a href='http://www.star.bnl.gov/protected/spin/dilks/scalers2015pAu/index.html'>Run15 pAu200</a>
+</center>
+<hr />
+<h3><a href='http://www.star.bnl.gov/protected/spin/dilks/trgmon12/500/trigger.html'>FMS Trigger Run QA</a></h3>
+<ul>
+  <li>Duration &gt; 3 min</li>
+  <li>(TRIG * TRIG<sub>PS</sub>) / (BBC * BBC<sub>PS</sub>) consistent 
+       with temporally adjacent runs</li>
+</ul>
+<h3><a href='pathologies.txt'>Deviant bXings Omission</a></h3>
+<ul>
+  <li>bXings with low scaler counts</li>
+  <li>As a secondary look at the relative luminosity, there is also a data set produced after randomly removing the minimum number of bXings such that there is an equal number of (+,+), (-,-), (+,-), (-,+) bXings for each fill; this is not the relative luminosity used for asymmetry analysis however; results are summarized below under the category "spinbit equalized"</li>
+</ul>
+<h3><a href='pattern.pdf'>Spin Patterns [PDF]</a></h3>
+<ul>
+  <li>Blue and yellow beam bXing patterns are shown for two fills per page. Vertical axis is STAR bXing and horizontal axis is the spin. Red means like-spin bXing and green means unlike-spin bXing; cyan means bXing with empty bunch(es).</li>
+</ul>
+
+
+<h3>bXing Shifts</h3>
+<p>Some of the bXing distributions showed abort gaps misaligned with their expected locations w.r.t. the CDEV spin patterns; the bXings for these fills were shifted prior to rellum calculation</p>
+<ul>
+  <li>F16570 was shifted back by 7 bXings for BBC, ZDC, and VPD distributions</li>
+  <li>The fills listed below required that the VPD bXings be shifted forward by 1 bXing; BBC and ZDC needed no correction</li>
+    <ul>
+      <li>16582</li>
+      <li>16586</li>
+      <li>16587</li>
+      <li>16592</li>
+      <li>16593</li>
+      <li>16594</li>
+      <li>16597</li>
+      <li>16602</li>
+    </ul>
+</ul>
+
+
+<h3>Scaler Bit Combinations</h3>
+<ul>
+  <li><a href="bit_doc.txt">Scaler Bits and E,W,X definitions</a></li>
+  <li><a href="bit_map.pdf">Scaler Input Map [PDF]</a></li>
+  <li><a href="bit_combos/bbc_bit_combos.png">BBC scaler bit counts</a></li>
+  <li><a href="bit_combos/zdc_bit_combos.png">ZDC scaler bit counts</a></li>
+  <li><a href="bit_combos/vpd_bit_combos.png">VPD scaler bit counts</a></li>
+</ul>
+
+<h3><a href="run_table.txt">Run Number Table</a></h3>
+<ul><li>columns: [TTree row] [run index] [run number] [fill index] [fill number]</li></ul>
+
+<br />
+<h3>Scaler Counts and Corrections</h3>
+<ul>
+<li><a href="http://www.star.bnl.gov/protected/spin/dilks/scalers_corrections/corrections.pdf">Originial Accidentals and Multiples Corrections (from CDF)</a></li>
+<li><a href="http://www.star.bnl.gov/protected/spin/dilks/scalers_corrections/rate_safe_counting.pdf">Rate-Safe Acc+Mul Corrections</a></li>
+</ul>
+    <table style="width: 100%; text-align: left; margin-left: auto; margin-right: auto;"
+      border="1">
+      <tbody align="center">
+        <tr align="center">
+          <td style="background-color: #434343; text-align: center;"><span style="color: white;"><br>
+            </span></td>
+          <td style="background-color: #434343; text-align: center;"><span style="color: white;"><strong>Detector<br>
+              </strong></span></td>
+          <td style="background-color: #434343; text-align: center;" colspan="3"
+            rowspan="1"><span style="color: white;"><strong>All bXings except
+                deviant<br>
+              </strong></span></td>
+          <td style="background-color: #434343; text-align: center;" colspan="3"
+            rowspan="1"><span style="color: white;"><strong>Fill-dependent<br>
+              </strong></span></td>
+          <td style="background-color: #434343; text-align: center;" colspan="3"
+            rowspan="1"><span style="color: white;"><strong>Spinbit equalized<br>
+              </strong></span></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #1f0b7f;" colspan="1" rowspan="3"><span style="color: white;"><strong>Raw
+                Scales<br>
+              </strong></span></td>
+          <td style="background-color: #c7cccb;"><strong>BBC</strong></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_log/raw_bbc_bx.pdf'>log</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin/raw_bbc_bx.pdf'>lin</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin_zoom/raw_bbc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #c7cccb;"><strong>ZDC</strong></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_log/raw_zdc_bx.pdf'>log</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin/raw_zdc_bx.pdf'>lin</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin_zoom/raw_zdc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #c7cccb;"><strong>VPD</strong></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/raw_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_log/raw_vpd_bx.pdf'>log</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin/raw_vpd_bx.pdf'>lin</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin_zoom/raw_vpd_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/raw_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #1f0b7f;" colspan="1" rowspan="3"><span style="color: white;"><strong>Accidentals<br>
+                Corrected Scales<br>
+              </strong></span></td>
+          <td style="background-color: #ccffff;"><strong>BBC</strong></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_log/acc_bbc_bx.pdf'>log</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin/acc_bbc_bx.pdf'>lin</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin_zoom/acc_bbc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #ccffff;"><strong>ZDC</strong></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_log/acc_zdc_bx.pdf'>log</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin/acc_zdc_bx.pdf'>lin</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin_zoom/acc_zdc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #ccffff;"><strong>VPD</strong></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/acc_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_log/acc_vpd_bx.pdf'>log</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin/acc_vpd_bx.pdf'>lin</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin_zoom/acc_vpd_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/acc_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #1f0b7f;" colspan="1" rowspan="3"><span style="color: white;"><strong>Multiples<br>
+                Corrected Scales<br>
+              </strong></span></td>
+          <td style="background-color: #c7cccb;"><strong>BBC</strong></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_log/mul_bbc_bx.pdf'>log</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin/mul_bbc_bx.pdf'>lin</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin_zoom/mul_bbc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #c7cccb;"><strong>ZDC</strong></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_log/mul_zdc_bx.pdf'>log</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin/mul_zdc_bx.pdf'>lin</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin_zoom/mul_zdc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #c7cccb;"><strong>VPD</strong></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mul_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_log/mul_vpd_bx.pdf'>log</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin/mul_vpd_bx.pdf'>lin</a></td>
+          <td style="background-color: #c7cccb;"><a href='pdf_bXings_fills_lin_zoom/mul_vpd_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mul_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #1f0b7f;" colspan="1" rowspan="3"><span style="color: white;"><strong>Correction
+                Ratios<br>
+                (multiples/raw)<br>
+              </strong></span></td>
+          <td style="background-color: #ccffff;"><strong>BBC</strong></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_log/fac_bbc_bx.pdf'>log</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin/fac_bbc_bx.pdf'>lin</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin_zoom/fac_bbc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #ccffff;"><strong>ZDC</strong></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_log/fac_zdc_bx.pdf'>log</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin/fac_zdc_bx.pdf'>lin</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin_zoom/fac_zdc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #ccffff;"><strong>VPD</strong></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/fac_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_log/fac_vpd_bx.pdf'>log</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin/fac_vpd_bx.pdf'>lin</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin_zoom/fac_vpd_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/fac_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #44447f;" colspan="1" rowspan="1"><span style="color: white;">
+          <strong>Rate-Safe Corrected Counts<br>(rsc)</strong></span></td>
+          <td style="background-color: #ccffff;"><strong>all</strong></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_log/rsc_bx.pdf'>log</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin/rsc_bx.pdf'>lin</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin_zoom/rsc_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #44447f;" colspan="1" rowspan="1"><span style="color: white;">
+          <strong>Rate-Safe Correction Factor<br>
+                  (rsc/raw)</strong></span></td>
+          <td style="background-color: #ccffff;"><strong>all</strong></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsr_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsr_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsr_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_log/rsr_bx.pdf'>log</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin/rsr_bx.pdf'>lin</a></td>
+          <td style="background-color: #ccffff;"><a href='pdf_bXings_fills_lin_zoom/rsr_bx.pdf'>lin-zoom</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsr_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsr_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsr_bx.png'>vs. bXing</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+
+<br />
+<h3>Correction Factor vs. Rate</h3>
+<ul>
+<li><a href='png_rellum/rate_fac_bbc.png'>BBC fac vs. rate</a></li>
+<li><a href='png_rellum/rate_fac_zdc.png'>ZDC fac vs. rate</a></li>
+<li><a href='png_rellum/rate_fac_vpd.png'>VPD fac vs. rate</a></li>
+<li><a href='png_rellum/rate_rsr.png'>(rsc/raw) vs. rate</a></li>
+</ul>
+
+<br />
+<h3>Correction Comparisons</h3>
+<ul>
+<li><a href='png_rellum/mul_compare_raw.png'>Acc+Mul compared to Raw</a></li>
+<li><a href='png_rellum/rsc_compare_raw.png'>Rate-Safe compared to Raw</a></li>
+<li><a href='png_rellum/rsc_compare_mul.png'>Rate-Safe compared to Acc+Mul</a></li>
+</ul>
+
+
+<br />
+<h3>Bunch Counting</h3>
+<ul>
+<li>tau := total bXings during run / bXing rate
+<li><a href='nbx_check/ctt.png'>tau vs. run time</a></li>
+<li><a href='nbx_check/quot_canv.png'>run time / tau vs. run index</a></li>
+<li><a href='nbx_check/nbx_vs_bxing.pdf'>total bXings vs. bXing [PDF]</a> -- normalized so max bin = 1</li>
+</ul>
+
+
+<br />
+<h3>Relative Luminosities</h3>
+    <table style="width: 100%; text-align: left; margin-left: auto; margin-right: auto;"
+      border="1">
+      <tbody>
+        <tr align="center">
+          <td style="background-color: #434343;"><span style="font-weight: bold;"><span
+                style="color: white;"><br>
+              </span></span></td>
+          <td style="background-color: #434343;"><span style="font-weight: bold;"><span
+                style="color: white;">Detector<br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="background-color: #434343;"><span
+              style="font-weight: bold;"><span style="color: white;">All bXings
+                except deviant</span><span style="color: white;"><br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="background-color: #434343;"><span
+              style="font-weight: bold;"><span style="color: white;">Spinbit
+                Equalized</span><span style="color: white;"><br>
+              </span></span></td>
+        </tr>
+        <tr align="center">
+          <td colspan="1" rowspan="3" style="background-color: #1f0b7f;"><span
+              style="font-weight: bold;"><span style="color: white;"><br>
+              </span><br>
+              <span style="color: white;">R<sub>1</sub><br>
+              </span><br>
+              <span style="color: white;"><br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #c7cccb;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #c7cccb;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R1_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R1_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td colspan="1" rowspan="3" style="background-color: #1f0b7f; text-align: center;"><span
+              style="font-weight: bold;"><span style="color: white;"><br>
+              </span><br>
+              <span style="color: white;">R<sub>2</sub><br>
+              </span><br>
+              <span style="color: white;"><br>
+              </span></span></td>
+          <td style="background-color: #ccffff; text-align: center;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #ccffff; text-align: center;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #ccffff; text-align: center;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R2_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R2_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="background-color: #1f0b7f;" colspan="1"
+            rowspan="3"><span style="font-weight: bold;"><span style="color: white;">R<sub>3</sub><br>
+              </span></span></td>
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R3_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R3_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;" colspan="1"
+            rowspan="3"><span style="font-weight: bold;"><span style="color: white;">R<sub>4</sub><br>
+              </span></span></td>
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R4_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R4_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;" colspan="1"
+            rowspan="3"><span style="font-weight: bold;"><span style="color: white;">R<sub>5</sub><br>
+              </span></span></td>
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R5_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R5_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;" colspan="1"
+            rowspan="3"><span style="font-weight: bold;"><span style="color: white;">R<sub>6</sub><br>
+              </span></span></td>
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R6_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R6_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;" colspan="1"
+            rowspan="3"><span style="font-weight: bold;"><span style="color: white;">R<sub>7</sub><br>
+              </span></span></td>
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R7_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R7_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;" colspan="1"
+            rowspan="3"><span style="font-weight: bold;"><span style="color: white;">R<sub>8</sub><br>
+              </span></span></td>
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #ccffff;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/R8_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/R8_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;" colspan="1"
+            rowspan="3"><span style="font-weight: bold;"><span style="color: white;">R<sub>9</sub><br>
+              </span></span></td>
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">BBC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_bbc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_bbc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">ZDC</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_zdc_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_zdc_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #c7cccb;"><span style="font-weight: bold;">VPD</span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/R9_vpd_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/R9_vpd_bx.png'>vs. bXing</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+
+<br />
+<h3>Mean Relative Luminosity</h3>
+    <table style="width: 100%" border="1">
+      <tbody>
+        <tr align="center">
+          <td style="text-align: center; background-color: #434343;"><span style="color: white;"><span
+                style="font-weight: bold;"><br>
+              </span></span></td>
+          <td colspan="2" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="color: white;"><span style="font-weight: bold;">All bXings
+                except deviant<br>
+              </span></span></td>
+          <td colspan="2" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="color: white;"><span style="font-weight: bold;">Spinbit
+                equalization</span><br>
+            </span></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>1</sub>&gt;<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R1_fi.png'>vs. fill</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>2</sub>&gt;<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/mean_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/mean_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/mean_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/mean_R2_fi.png'>vs. fill</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>3</sub>&gt;<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R3_fi.png'>vs. fill</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>4</sub>&gt;</span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/mean_R4_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/mean_R4_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/mean_R4_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/mean_R4_fi.png'>vs. fill</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>5</sub>&gt;</span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R5_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R5_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R5_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R5_fi.png'>vs. fill</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>6</sub>&gt;</span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/mean_R6_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/mean_R6_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/mean_R6_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/mean_R6_fi.png'>vs. fill</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>7</sub>&gt;</span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R7_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R7_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R7_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R7_fi.png'>vs. fill</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>8</sub>&gt;</span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/mean_R8_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/mean_R8_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/mean_R8_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/mean_R8_fi.png'>vs. fill</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">&lt;R<sub>9</sub>&gt;</span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R9_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/mean_R9_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R9_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/mean_R9_fi.png'>vs. fill</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+<br />
+<h3>Relative Luminosity -- CDF vs. Rate-safe Corrections</h3>
+    <table style="width: 100%" border="1">
+      <tbody>
+        <tr align="center">
+          <td style="text-align: center; background-color: #434343;"><span style="color: white;"><span
+                style="font-weight: bold;"><br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="color: white;"><span style="font-weight: bold;">All bXings
+                except deviant<br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="color: white;"><span style="font-weight: bold;">Spinbit
+                equalization</span><br>
+            </span></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>1</sub>(rsc)-R<sub>1</sub>(cdf)<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R1_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R1_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>2</sub>(rsc)-R<sub>2</sub>(cdf)<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R2_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R2_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>3</sub>(rsc)-R<sub>3</sub>(cdf)<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R3_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R3_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>4</sub>(rsc)-R<sub>4</sub>(cdf)<br>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R4_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R4_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R4_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R4_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R4_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R4_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>5</sub>(rsc)-R<sub>5</sub>(cdf)<br>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R5_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R5_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R5_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R5_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R5_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R5_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>6</sub>(rsc)-R<sub>6</sub>(cdf)<br>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R6_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R6_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R6_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R6_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R6_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R6_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>7</sub>(rsc)-R<sub>7</sub>(cdf)<br>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R7_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R7_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R7_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R7_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R7_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R7_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>8</sub>(rsc)-R<sub>8</sub>(cdf)<br>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R8_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R8_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/rsc_minus_mul_R8_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R8_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R8_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/rsc_minus_mul_R8_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="color: white;"><span
+                style="font-weight: bold;">R<sub>9</sub>(rsc)-R<sub>9</sub>(cdf)<br>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R9_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R9_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/rsc_minus_mul_R9_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R9_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R9_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/rsc_minus_mul_R9_bx.png'>vs. bXing</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+<br />
+<h3>R<sub>1</sub> Cross-Checks</h3>
+    <table style="width: 100%;" border="1">
+      <tbody>
+        <tr align="center">
+          <td style="text-align: center; background-color: #434343;"><span style="font-weight: bold;"><span
+                style="color: white;"><br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="font-weight: bold;"><span style="color: white;">All bXings
+                except deviant<br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="font-weight: bold;"><span style="color: white;">Spinbit
+                equalization<br>
+              </span></span></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; height: 19px; background-color: #1f0b7f;"><span
+              style="font-weight: bold;"><span style="color: white;">ZDC - VPD<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R1_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R1_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">East - West<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R1_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R1_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; width: 212px; background-color: #1f0b7f;"><span
+              style="font-weight: bold;"><span style="color: white;">East - Coin<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R1_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R1_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">West - Coin<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R1_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R1_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R1_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R1_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>1</sub> - &lt;R<sub>1</sub>&gt; for BBC<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R1_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R1_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R1_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R1_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>1</sub> - &lt;R<sub>1</sub>&gt; for ZDC<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R1_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R1_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R1_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R1_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>1</sub> - &lt;R<sub>1</sub>&gt; for VPD<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R1_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R1_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R1_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R1_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+<br />
+<h3>R<sub>2</sub> Cross-Checks</h3>
+    <table style="width: 100%;" border="1">
+      <tbody>
+        <tr align="center">
+          <td style="text-align: center; background-color: #434343;"><span style="font-weight: bold;"><span
+                style="color: white;"><br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="font-weight: bold;"><span style="color: white;">All bXings
+                except deviant<br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="font-weight: bold;"><span style="color: white;">Spinbit
+                equalization<br>
+              </span></span></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; height: 19px; background-color: #1f0b7f;"><span
+              style="font-weight: bold;"><span style="color: white;">ZDC - VPD<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R2_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R2_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">East - West<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R2_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R2_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; width: 212px; background-color: #1f0b7f;"><span
+              style="font-weight: bold;"><span style="color: white;">East - Coin<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R2_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R2_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">West - Coin<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R2_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R2_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R2_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R2_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>2</sub> - &lt;R<sub>2</sub>&gt; for BBC<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R2_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R2_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R2_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R2_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>2</sub> - &lt;R<sub>2</sub>&gt; for ZDC<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R2_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R2_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R2_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R2_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>2</sub> - &lt;R<sub>2</sub>&gt; for VPD<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R2_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R2_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R2_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R2_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+<br />
+<h3>R<sub>3</sub> Cross-Checks</h3>
+    <table style="width: 100%;" border="1">
+      <tbody>
+        <tr align="center">
+          <td style="text-align: center; background-color: #434343;"><span style="font-weight: bold;"><span
+                style="color: white;"><br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="font-weight: bold;"><span style="color: white;">All bXings
+                except deviant<br>
+              </span></span></td>
+          <td colspan="3" rowspan="1" style="text-align: center; background-color: #434343;"><span
+              style="font-weight: bold;"><span style="color: white;">Spinbit
+                equalization<br>
+              </span></span></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; height: 19px; background-color: #1f0b7f;"><span
+              style="font-weight: bold;"><span style="color: white;">ZDC - VPD<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/zdc_minus_vpd_R3_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/zdc_minus_vpd_R3_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">East - West<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_west_R3_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_west_R3_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; width: 212px; background-color: #1f0b7f;"><span
+              style="font-weight: bold;"><span style="color: white;">East - Coin<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/east_minus_coin_R3_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/east_minus_coin_R3_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">West - Coin<br>
+              </span></span></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum/west_minus_coin_R3_bx.png'>vs. bXing</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R3_i.png'>vs. run</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R3_fi.png'>vs. fill</a></td>
+          <td style="background-color: #ccffff;"><a href='png_rellum_se/west_minus_coin_R3_bx.png'>vs. bXing</a></td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>3</sub> - &lt;R<sub>3</sub>&gt; for BBC<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R3_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R3_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R3_bbc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R3_bbc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>3</sub> - &lt;R<sub>3</sub>&gt; for ZDC<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R3_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R3_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R3_zdc_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R3_zdc_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+        <tr align="center">
+          <td style="text-align: center; background-color: #1f0b7f;"><span style="font-weight: bold;"><span
+                style="color: white;">R<sub>3</sub> - &lt;R<sub>3</sub>&gt; for VPD<br>
+              </span></span></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R3_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum/deviation_R3_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R3_vpd_i.png'>vs. run</a></td>
+          <td style="background-color: #c7cccb;"><a href='png_rellum_se/deviation_R3_vpd_fi.png'>vs. fill</a></td>
+          <td style="background-color: #c7cccb;">&nbsp;</td>
+        </tr>
+      </tbody>
+    </table>
+<br />
+<h3>R<sub>3</sub> measurement consistency ranges:</h3>
+<ul>
+<li>| VPDE - ZDCE | &lt; 0.002000</li>
+<li>| VPDW - ZDCW | &lt; 0.002000</li>
+<li>| VPDX - ZDCX | &lt; 0.003000</li>
+<li>| ZDCE - ZDCW | &lt; 0.001500</li>
+<li>| VPDE - VPDW | &lt; 0.002000</li>
+<li>| ZDCE - ZDCX | &lt; 0.004000</li>
+<li>| VPDE - VPDX | &lt; 0.015000</li>
+<li>| ZDCW - ZDCX | &lt; 0.004000</li>
+<li>| VPDW - VPDX | &lt; 0.003000</li>
+<li>t / tau &lt; 1.100000</li>
+</ul>
+<h3><a href='rtree.root'>ROOT file</a></h3>
+<hr />
+<p align="right">Last updated December 2014 by Christopher Dilks</p>
+
+</body>
+</html>
+
+

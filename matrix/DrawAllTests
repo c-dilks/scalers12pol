@@ -1,0 +1,5 @@
+#!/bin/bash
+for x in A B C D E F Z SE; do
+  echo $x
+  root -b -q DrawProjections2.C'("'$x'")'
+done

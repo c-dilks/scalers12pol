@@ -1,0 +1,17 @@
+#!/bin/bash
+# combines pdf files in pdf_bXings_runs
+
+# get list of files to concatenate 
+pushd pdf_bXings_runs > /dev/null
+tmpdir=$(ls -d */ | head -n1)
+pushd $tmpdir > /dev/null
+ls *.pdf > ../files
+popd > /dev/null
+cat files
+
+# concatenation
+while read line; do
+  gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=$line 1*/$line
+  echo "$line concatenated"
+done < files
+rm files

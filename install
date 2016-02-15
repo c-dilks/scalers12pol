@@ -1,0 +1,19 @@
+#!/bin/bash
+# makes directories and sets up symlinks
+
+mkdir -p log
+mkdir -p datfiles
+mkdir -p matrix/rootfiles
+mkdir -p pdf_bXings_fills
+mkdir -p pdf_bXings_runs
+mkdir -p pdfs
+mkdir -p png_rellum
+
+touch sca2012; rm sca2012
+ln -sv /GreyDisk1/sca2012 sca2012
+
+touch spinpat; rm spinpat
+ln -sv ../fmstxt/spinpat spinpat
+
+touch pol.root; rm pol.root
+ln -sv ../polar12/pol.root pol.root

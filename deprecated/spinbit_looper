@@ -1,0 +1,19 @@
+#!/bin/bash
+# loops spinbit for all fills
+
+dir="spinpat"
+filestr="-buckets-polarizationfillpatterns.fill"
+rm $dir/*.spin
+cat goodruns.dat | awk '{print $3}' | uniq > filllist
+while read fill; do
+  bluefile="$dir/blue$filestr$fill.dat"
+  yellfile="$dir/yell$filestr$fill.dat"
+  if [ -f $bluefile -a -f $yellfile ]; then
+    ./spinbit $fill
+    echo "$dir/$fill.spin built"
+  else
+    echo "WARNING: spin pattern for fill$fill does not exist"
+  fi
+done < filllist
+rm filllist
+echo "*.spin files created"

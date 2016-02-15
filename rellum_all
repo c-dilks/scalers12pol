@@ -1,0 +1,18 @@
+#!/bin/bash
+# runs rellum*.C for all possible triggers and indep. vars
+
+# control variables (see comments in rellum4.C)
+drawLog=0
+zoomIn=0
+
+rm png_rellum/*.png
+root -b -q 'rellum4.C("i",1,'$drawLog','$zoomIn')'
+root -b -q 'rellum4.C("fi",1,'$drawLog','$zoomIn')'
+root -b -q 'rellum4.C("bx",1,'$drawLog','$zoomIn')'
+root -b -q 'rellum4.C("i",0,'$drawLog','$zoomIn')'
+root -b -q 'rellum4.C("fi",0,'$drawLog','$zoomIn')'
+root -b -q 'rellum4.C("bx",0,'$drawLog','$zoomIn')'
+
+echo ""
+echo "the following files have been created:"
+ls -lh rdat_*.root

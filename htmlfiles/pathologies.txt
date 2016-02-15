@@ -1,0 +1,111 @@
+ZDC and VPD were checked; they agree, but VPD has a few
+bXing shifts (see anomalies section under VPD). Sam checked
+BBC, which also agrees
+
+     o---------o
+-----|   ZDC   |-------------------------------------------
+     o---------o
+
+checking raw ZDC bXing distributions for anomolies using log view
+- if abort gaps are shifted, the anomalous bXings quoted do 
+  not account for the shift (i.e. the bXing number is there 
+  and also will need to be shifted if we shift the bXing distribution
+  to correct the abort gaps)
+  -- if shifted backward by n, add n to bXing to correct
+  -- if shifted forward by n, subtract n to bXing to correct
+- quoted bXing is anomalously low, unless otherwise noted
+
+
+16570 29
+16582 61
+16587 29
+16593 9
+16597 27
+16602 56
+16618 40
+16625 23
+16626 12
+16626 19
+16650 58
+16655 75
+16656 15
+16668 26
+16669 26
+16671 96
+16678 70
+16685 23
+16686 17
+16697 108
+16701 21
+16701 28
+16704 90
+16704 101
+16705 51
+16720 7
+16731 60
+
+
+anomalies
+---------
+16570 -- aborts shifted forward by 7 bXings
+
+
+
+     o---------o
+-----|   VPD   |-------------------------------------------
+     o---------o
+
+checking raw VPD bXing distributions for anomolies using log view
+- if abort gaps are shifted, the anomalous bXings quoted do 
+  not account for the shift (i.e. the bXing number is there 
+  and also will need to be shifted if we shift the bXing distribution
+  to correct the abort gaps)
+  -- if shifted backward by n, add n to bXing to correct
+  -- if shifted forward by n, subtract n to bXing to correct
+- quoted bXing is anomalously low, unless otherwise noted
+
+
+16570 29
+16582 60
+16587 28
+16593 8
+16597 26
+16602 55
+16618 40
+16625 23
+16626 12
+16626 19
+16650 58
+16655 75
+16656 15
+16668 26
+16669 26
+16671 96
+16678 70
+16685 23
+16686 17
+16697 108
+16701 21
+16701 28
+16704 90
+16704 101
+16705 51
+16720 7
+16731 60
+
+
+anomalies
+---------
+16570 -- aborts shifted forward by 7 bXings
+16570 85 -- high
+16570 86 -- high
+16582 -- aborts shifted backward by 1 bXing
+16586 -- aborts shifted backward by 1 bXing
+16586 77 -- high
+16586 78 -- high
+16587 -- aborts shifted backward by 1 bXing
+16592 -- aborts shifted backward by 1 bXing
+16593 -- aborts shifted backward by 1 bXing
+16594 -- aborts shifted backward by 1 bXing
+16597 -- aborts shifted backward by 1 bXing
+16602 -- aborts shifted backward by 1 bXing

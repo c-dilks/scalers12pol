@@ -1,0 +1,46 @@
+#!/bin/bash
+# builds hpss files and targets to copy them to, upon
+# execution of hpss_user.pl file retrieval script
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 [board#]"
+  echo "see online.star.bnl.gov/scaler2012/documentation"
+  exit 1
+fi
+
+# no. files to put in each list
+size=158 
+
+# board number
+bd=$1
+
+# daq directory on hpss
+hpss_dir="/home/starsink/raw/daq"
+
+# name of file list
+lfile="files_to_retrieve"
+
+
+it=0
+file_num=1
+file_name="$lfile.$file_num.lst"
+> $file_name
+
+while read line; do
+  let it++
+  runNum=$(echo $line | awk '{print $1}')
+  year=$(echo $runNum | cut -c1-2)
+  day=$(echo $runNum | cut -c3-5)
+  run=$(echo $runNum | cut -c6-8)
+  year=$(echo "($year-1)+2000"|bc)
+  echo $runNum $year $day $run
+  echo "$hpss_dir/$year/$day/$runNum/scaler.run$runNum.bd0$bd.hist.dat /gpfs01/star/scratch/dilks/sca$year/scaler.run$runNum.bd0$bd.hist.dat" >> $file_name
+  if [ $it -eq $size ]; then
+    it=0
+    let file_num++
+    file_name="$lfile.$file_num.lst"
+    > $file_name
+  fi
+done < goodruns.dat
+
+if [ $it -eq 0 ]; then rm $file_name; fi

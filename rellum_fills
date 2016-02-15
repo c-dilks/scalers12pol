@@ -1,0 +1,41 @@
+#!/bin/bash
+# runs rellum*.C for each fill to look at how bXing distributions change
+
+drawLog=1
+zoomIn=0 
+
+
+cat fill.txt | awk '{print $2}' | uniq > fill_list.txt
+
+> cons_study
+> matrix_out
+
+
+job="filldep.bat"
+> $job
+
+echo "building batch file.."
+echo "Executable = `which root.exe`" >> $job
+echo "Universe = vanilla" >> $job
+echo "notification = never" >> $job
+echo "getenv = True" >> $job
+echo '+Experiment = "star"' >> $job
+echo '+Job_Type = "cas"' >> $job
+echo "" >> $job
+
+log="log"
+wd=$(pwd)
+
+cnt=1
+
+while read fill; do
+  echo "Arguments = -b -q rellum4.C(\\\"bx\\\",1,$drawLog,$zoomIn,$fill)" >> $job
+  echo "Log    = ${log}/RellumFill${cnt}.log" >> $job
+  echo "Output = ${log}/RellumFill${cnt}.out" >> $job
+  echo "Error  = ${log}/RellumFill${cnt}.err" >> $job
+  echo "Queue" >> $job
+  echo "" >> $job
+  let cnt++
+done < fill_list.txt
+
+condor_submit $job

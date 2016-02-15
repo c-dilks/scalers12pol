@@ -1,0 +1,1459 @@
+/* - computes relative luminosity for BBC,ZDC,VPD w.r.t. parameter "var"
+ *   - useful "var"'s
+ *     - run index "i"
+ *     - fill index "fi"
+ *     - bXing number "bx"
+ *  - the file rdat.root is populated with TCanvases for scaler counts and rellums
+ *    (see documentation for further details of what's contained in output rdat.root files)
+ *    - "raw" = raw scaler counts
+ *    - "acc" = accidentals corrected scaler counts (stage 1)
+ *    - "mul" = multiples corrected scaler counts (stage 2)
+ *    - "fac" = correction factor (mul/raw)
+ *    - R1-9 = 9 possible relative luminosities
+ *    - R*_zdc_minus_vpd = difference between rellum for zdc and vpd
+ * - can write pngs to png_rellum subdirectory (run "rellum_all" to do this
+ *   for the interesting independent vars)
+ *
+ * - printPNGs = true will produce png files (run as background!)
+ * - drawLog = true will draw all scaler counts plots on log y scale
+ * - zoomIn = true will "zoom in" on abort gaps scaler counts by setting
+ *            a maximum in the distributions -- this is more useful for
+ *            looking at structure in linear bXing distributions
+ *            (only enabled if var==bx)
+ * - specificFill = if 0 --> plot all fills
+ *                  if >0 --> plot only fill no. "specificFill"
+ *                  
+ */
+
+void rellum4(const char * var="i",Bool_t printPNGs=0, 
+             Bool_t drawLog=0, Int_t zoomIn=0, Int_t specificFill=0)
+{
+  // read counts.root file
+  TFile * infile = new TFile("counts.root","READ");
+  TTree * tr = (TTree*) infile->Get("sca");
+  char outname[128];
+  sprintf(outname,"rdat_%s.root",var);
+  if(specificFill==0) TFile * outfile = new TFile(outname,"RECREATE");
+  //tr->Print();
+  
+
+  // zeroAborts boolean -- if true, will draw plots that lack "spin_cut" (i.e. plots
+  // for all four possible spin combination; this is useful for looking at abort
+  // gap scaler counts in bXing distributions; this boolean does not affect rellum calculation
+  Bool_t zeroAborts;
+  if(!strcmp(var,"bx")) zeroAborts=0;
+  else zeroAborts=1;
+
+  // - runCutNum = if 0 --> all "good" runs
+  //               if 1 --> runs where two bunches were empty in spin pattern (see "run_cut")
+  //               if 2 --> runs where all bunches but abort gaps were filled
+  //               -- see log entry 08.01.14 for conclusions
+  Bool_t runCutNum=0;
+
+  // define independent variable bounds
+  Int_t var_l = tr->GetMinimum(var);
+  Int_t var_h = tr->GetMaximum(var);
+  var_h++; // fencepost
+  Int_t var_bins = var_h-var_l;
+  if(!strcmp(var,"t")) var_bins=800;
+  const Int_t var_bins_const = var_bins;
+  printf("var_bins=%d var_l=%d var_h=%d\n",var_bins,var_l,var_h);
+
+
+
+  // ARRAY DEFINITIONS: (i.e. obfuscation)
+  // from here on, all distributions are identified by 3-d arrays:
+  // name[trigger bit][combination bit][spin bit]
+  //
+  // int   triggerbit     combbit     spinbit
+  // ---   ----------     -------     -------
+  // 0     BBC            E           B- Y-
+  // 1     ZDC            W           B- Y+
+  // 2     VPD            X           B+ Y-
+  // 3                                B+ Y+ 
+  //
+  //                                  spinbit=4 = all of them
+
+
+
+  // trigger bit character strings (tbit)
+  char tbit[3][4];
+  sprintf(tbit[0],"bbc");
+  sprintf(tbit[1],"zdc");
+  sprintf(tbit[2],"vpd");
+
+
+  // combination bit character strings (cbit)
+  char cbit[3][4];
+  sprintf(cbit[0],"e");
+  sprintf(cbit[1],"w");
+  sprintf(cbit[2],"x");
+
+
+  // spin bit character strings (sbit) ( p & n ... for th1 names)
+  char sbit[5][4];
+  sprintf(sbit[0],"nn");
+  sprintf(sbit[1],"np");
+  sprintf(sbit[2],"pn");
+  sprintf(sbit[3],"pp");
+  sprintf(sbit[4],"all");
+
+  // spin bit character strings (nbit) ( + & - ... for th1 titles)
+  char nbit[5][4];
+  sprintf(nbit[0],"--");
+  sprintf(nbit[1],"-+");
+  sprintf(nbit[2],"+-");
+  sprintf(nbit[3],"++");
+  sprintf(nbit[4],"all");
+
+
+  // set branch addresses
+  Int_t index,runnum,fill,fi,bx;
+  Double_t N[3][3]; // [tbit] [cbit]
+  Double_t tot_bx,time;
+  Int_t blue,yell;
+  tr->SetBranchAddress("i",&index);
+  tr->SetBranchAddress("runnum",&runnum);
+  tr->SetBranchAddress("fill",&fill);
+  tr->SetBranchAddress("fi",&fi);
+  tr->SetBranchAddress("t",&time);
+  tr->SetBranchAddress("bx",&bx);
+  tr->SetBranchAddress("blue",&blue);
+  tr->SetBranchAddress("yell",&yell);
+  tr->SetBranchAddress("tot_bx",&tot_bx);
+  // bbc
+    tr->SetBranchAddress("bbce",&N[0][0]); // written explicitly for
+    tr->SetBranchAddress("bbcw",&N[0][1]); // obfuscation clarifaction
+    tr->SetBranchAddress("bbcx",&N[0][2]);
+  // zdc 
+    tr->SetBranchAddress("zdce",&N[1][0]);
+    tr->SetBranchAddress("zdcw",&N[1][1]);
+    tr->SetBranchAddress("zdcx",&N[1][2]); 
+  // vpd
+    tr->SetBranchAddress("vpde",&N[2][0]);
+    tr->SetBranchAddress("vpdw",&N[2][1]);
+    tr->SetBranchAddress("vpdx",&N[2][2]); 
+
+
+
+  // fill time array (used for rate dependence, which is calculated iff var=="i")
+  // -- also fills "fill array" and "runnum array"
+  Int_t index_tmp=0;
+  Int_t time_array[var_bins_const]; // fenceposting: array index = run index - 1
+  Int_t fill_array[var_bins_const];
+  Int_t runnum_array[var_bins_const];
+  if(!strcmp(var,"i"))
+  {
+    for(Int_t i=0; i<tr->GetEntries(); i++)
+    {
+      tr->GetEntry(i);
+      if(index_tmp != index)
+      {
+        time_array[index-1] = time;
+        fill_array[index-1] = fill;
+        runnum_array[index-1] = runnum;
+        index_tmp = index;
+      };
+    };
+  };
+
+
+
+  // define distributions
+  /*   raw = raw (uncorrected) distributions
+   *   acc = accidentals corrected distributions
+   *   mul = multiples corrected distributions
+   *   fac = correction factor (multiples / raw)
+   *   tot = tot_bx (total scaler counts) distributions
+   */
+  char raw_n[3][3][5][256];  // [tbit] [cbit] [sbit] [char buffer]
+  char raw_t[3][3][5][256];
+  char acc_n[3][3][5][256];
+  char acc_t[3][3][5][256];
+  char mul_n[3][3][5][256];
+  char mul_t[3][3][5][256];
+  char fac_n[3][3][5][256];
+  char fac_t[3][3][5][256];
+  char tot_n[5][256]; // [sbit] [char buffer]
+  char tot_t[5][256];
+  TH1D * raw_d[3][3][5]; // raw scaler counts
+  TH1D * acc_d[3][3][5]; // accidentals corrected scaler counts (stage 1)
+  TH1D * mul_d[3][3][5]; // multiples corrected scaler counts (stage 2)
+  TH1D * fac_d[3][3][5]; // correction factor (multiples corrected / raw)
+  TH1D * tot_d[5]; // [sbit]
+  char leg[50]; 
+  if (zeroAborts) sprintf(leg,"(Grn:-- Orn:-+ Red:+- Blue:++)");
+  else sprintf(leg,"(Grn:-- Orn:-+ Red:+- Blue:++ Blk:all)");
+  char fill_t[16];
+  if (specificFill==0) sprintf(fill_t,"");
+  else sprintf(fill_t," -- F%d",specificFill);
+  for(Int_t s=0; s<5; s++)
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      for(Int_t c=0; c<3; c++)
+      {
+        sprintf(raw_n[t][c][s],"raw_%s%s_%s",tbit[t],cbit[c],sbit[s]);
+        sprintf(raw_t[t][c][s],"raw %s%s vs. %s %s%s",tbit[t],cbit[c],var,leg,fill_t);
+        sprintf(acc_n[t][c][s],"acc_%s%s_%s",tbit[t],cbit[c],sbit[s]);
+        sprintf(acc_t[t][c][s],"accidentals corrected %s%s vs %s %s%s",tbit[t],cbit[c],var,leg,fill_t);
+        sprintf(mul_n[t][c][s],"mul_%s%s_%s",tbit[t],cbit[c],sbit[s]);
+        sprintf(mul_t[t][c][s],"multiples corrected %s%s vs. %s %s%s",tbit[t],cbit[c],var,leg,fill_t);
+        sprintf(fac_n[t][c][s],"fac_%s%s_%s",tbit[t],cbit[c],sbit[s]);
+        sprintf(fac_t[t][c][s],"correction factor (mult/raw) for %s%s vs. %s %s%s",tbit[t],cbit[c],var,leg,fill_t);
+        raw_d[t][c][s] = new TH1D(raw_n[t][c][s],raw_t[t][c][s],var_bins,var_l,var_h);
+        acc_d[t][c][s] = new TH1D(acc_n[t][c][s],acc_t[t][c][s],var_bins,var_l,var_h);
+        mul_d[t][c][s] = new TH1D(mul_n[t][c][s],mul_t[t][c][s],var_bins,var_l,var_h);
+        fac_d[t][c][s] = new TH1D(fac_n[t][c][s],fac_t[t][c][s],var_bins,var_l,var_h);
+      };
+    };
+    sprintf(tot_n[s],"tot_%s",sbit[s]);
+    sprintf(tot_t[s],"total scaler counts N_{bx}^{%s}",nbit[s]);
+    tot_d[s] = new TH1D(tot_n[s],tot_t[s],var_bins,var_l,var_h);
+  };
+  char spin_pat_t[64]; sprintf(spin_pat_t,"R_{spin} vs. %s",var);
+  TH1D * spin_pat_same = new TH1D("spin_pat_same",spin_pat_t,var_bins,var_l,var_h);
+  TH1D * spin_pat_diff = new TH1D("spin_pat_diff",spin_pat_t,var_bins,var_l,var_h);
+  TH1D * spin_pat_rel = new TH1D("spin_pat_rel",spin_pat_t,var_bins,var_l,var_h);
+
+
+
+  // project raw scaler data into dists
+  char raw_cut[3][3][5][512]; // [tbit] [cbit] [sbit]
+  char tot_cut[5][512];
+
+  char spin_cut[5][128]; // (includes cut out of kicked bunches)
+   sprintf(spin_cut[0],"blue==-1 && yell==-1 && !kicked");
+   sprintf(spin_cut[1],"blue==-1 && yell==1 && !kicked");
+   sprintf(spin_cut[2],"blue==1 && yell==-1 && !kicked");
+   sprintf(spin_cut[3],"blue==1 && yell==1 && !kicked");
+   sprintf(spin_cut[4],"!kicked"); // no cut (so abort gaps aren't zeroed)
+
+  char run_cut[128];
+  if(runCutNum==1) sprintf(run_cut,"(runnum<14111035 || (runnum>=14146084 && runnum<=14147017))");
+  else if(runCutNum==2) sprintf(run_cut,"!(runnum<14111035 || (runnum>=14146084 && runnum<=14147017))");
+  else sprintf(run_cut,"1");
+
+  char fill_cut[128];
+  if(specificFill>0) sprintf(fill_cut,"fill==%d",specificFill);
+  else sprintf(fill_cut,"1");
+
+
+  for(Int_t s=0; s<5; s++)
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      for(Int_t c=0; c<3; c++)
+      {
+        sprintf(raw_cut[t][c][s],"%s%s*(%s&&%s&&%s)",tbit[t],cbit[c],spin_cut[s],run_cut,fill_cut);
+        tr->Project(raw_n[t][c][s],var,raw_cut[t][c][s]);
+      };
+    };
+    sprintf(tot_cut[s],"tot_bx*(%s&&%s&&%s)",spin_cut[s],run_cut,fill_cut);
+    tr->Project(tot_n[s],var,tot_cut[s]);
+  };
+  tr->Project("spin_pat_same",var,"blue==yell && blue!=0 && yell!=0");
+  tr->Project("spin_pat_diff",var,"blue!=yell && blue!=0 && yell!=0");
+  spin_pat_rel->Divide(spin_pat_same,spin_pat_diff,1.0,1.0);
+
+
+
+  // accidentals and multiples corrections
+  Double_t nn[3][3][5]; // scaled counts     [tbit] [cbit] [sbit]
+  Double_t pp[3][3][5]; // physical process probabilities
+  Double_t aa[3][3][5]; // counts corrected for accidentals (stage 1)
+  Double_t mm[3][3][5]; // counts corrected for multiples (stage 2)
+  Double_t ff[3][3][5]; // correction factor (mult/raw)
+  Double_t tt[5]; // total scaler counts
+  for(Int_t b=1; b<=var_bins; b++)
+  {
+    for(Int_t s=0; s<5; s++)
+    {
+      tt[s] = tot_d[s]->GetBinContent(b);
+      for(Int_t t=0; t<3; t++)
+      {
+        // get raw scaler counts for each trigger bit combination (E,W,X)
+        for(Int_t c=0; c<3; c++)
+        {
+          nn[t][c][s] = raw_d[t][c][s]->GetBinContent(b);
+        };
+        // only compute corrections for nonzero counts
+        if(tt[s]>0 && nn[t][0][s]>0 && nn[t][1][s]>0 && nn[t][2][s]>0)
+        {
+          // compute physical process probabilities
+          pp[t][0][s] = (nn[t][0][s] - nn[t][2][s]) / (tt[s] - nn[t][1][s]);
+          pp[t][1][s] = (nn[t][1][s] - nn[t][2][s]) / (tt[s] - nn[t][0][s]);
+          pp[t][2][s] = (nn[t][2][s] - (nn[t][0][s]*nn[t][1][s])/tt[s]) /
+                        (tt[s] + nn[t][2][s] - nn[t][0][s] - nn[t][1][s]);
+          // compute accidentals and multiples corrections and fill corrected dists
+          for(Int_t c=0; c<3; c++)
+          {
+            aa[t][c][s] = pp[t][c][s] * tt[s];
+            mm[t][c][s] = -1 * tt[s] * log(1 - pp[t][c][s]);
+            if(nn[t][c][s]>0) ff[t][c][s] = mm[t][c][s] / nn[t][c][s];
+            else ff[t][c][s] = 0;
+            acc_d[t][c][s]->SetBinContent(b,aa[t][c][s]);
+            mul_d[t][c][s]->SetBinContent(b,mm[t][c][s]);
+            fac_d[t][c][s]->SetBinContent(b,ff[t][c][s]);
+          };
+        };
+      };
+    };
+  };
+  
+
+  // compute error bars (for R3 only!)
+  TH1D * err_d[3][3][10]; // [tbit] [cbit] [rellum]
+  char err_t[3][3][10][256];
+  char err_n[3][3][10][256];
+  Double_t LL[4];
+  Double_t unc;
+  for(Int_t r=1; r<10; r++)
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      for(Int_t c=0; c<3; c++)
+      {
+        sprintf(err_t[t][c][r],"R%d error %s%s vs. %s",r,tbit[t],cbit[c],var);
+        sprintf(err_n[t][c][r],"err_%s%s_R%d",tbit[t],cbit[c],r);
+        err_d[t][c][r] = new TH1D(err_n[t][c][r],err_t[t][c][r],var_bins,var_l,var_h);
+
+        for(Int_t b=1; b<=var_bins; b++)
+        {
+          for(Int_t s=0; s<4; s++)
+          {
+            LL[s] = mul_d[t][c][s]->GetBinContent(b);
+          };
+
+          // rellum uncertainty propagation -- FORMULA
+          if(r==1)
+            unc = sqrt( ( (LL[1] + LL[3]) * (LL[0] + LL[1] + LL[2] + LL[3]) ) / pow((LL[0] + LL[2]), 3) );
+          else if(r==2)
+            unc = sqrt( ( (LL[2] + LL[3]) * (LL[0] + LL[1] + LL[2] + LL[3]) ) / pow((LL[0] + LL[1]), 3) );
+          else if(r==3)
+            unc = sqrt( ( (LL[0] + LL[3]) * (LL[0] + LL[1] + LL[2] + LL[3]) ) / pow((LL[1] + LL[2]), 3) );
+          else if(r==4) unc = sqrt( ( LL[3] * (LL[0]+LL[3])) / pow(LL[0], 3));
+          else if(r==5) unc = sqrt( ( LL[1] * (LL[0]+LL[1])) / pow(LL[0], 3));
+          else if(r==6) unc = sqrt( ( LL[2] * (LL[0]+LL[2])) / pow(LL[0], 3));
+          else if(r==7) unc = sqrt( ( LL[3] * (LL[2]+LL[3])) / pow(LL[2], 3));
+          else if(r==8) unc = sqrt( ( LL[1] * (LL[1]+LL[2])) / pow(LL[2], 3));
+          else if(r==9) unc = sqrt( ( LL[3] * (LL[1]+LL[3])) / pow(LL[1], 3));
+
+          err_d[t][c][r]->SetBinContent(b,unc);
+        };
+      };
+    };
+  };
+
+
+  // set colours and font sizes
+  //   -- cool colours (green & blue) for ++ & --
+  //   -- warm colours (red & orange) for +- & -+
+  //   IF COLORS CHANGED HERE, NEED TO CHANGE TITLES TOO
+  for(Int_t t=0; t<3; t++)
+  {
+    for(Int_t c=0; c<3; c++)
+    {
+      raw_d[t][c][0]->SetLineColor(kGreen+2);
+      raw_d[t][c][1]->SetLineColor(kOrange+7);
+      raw_d[t][c][2]->SetLineColor(kRed);
+      raw_d[t][c][3]->SetLineColor(kBlue);
+      raw_d[t][c][4]->SetLineColor(kBlack);
+      acc_d[t][c][0]->SetLineColor(kGreen+2);
+      acc_d[t][c][1]->SetLineColor(kOrange+7);
+      acc_d[t][c][2]->SetLineColor(kRed);
+      acc_d[t][c][3]->SetLineColor(kBlue);
+      acc_d[t][c][4]->SetLineColor(kBlack);
+      mul_d[t][c][0]->SetLineColor(kGreen+2);
+      mul_d[t][c][1]->SetLineColor(kOrange+7);
+      mul_d[t][c][2]->SetLineColor(kRed);
+      mul_d[t][c][3]->SetLineColor(kBlue);
+      mul_d[t][c][4]->SetLineColor(kBlack);
+      fac_d[t][c][0]->SetLineColor(kGreen+2);
+      fac_d[t][c][1]->SetLineColor(kOrange+7);
+      fac_d[t][c][2]->SetLineColor(kRed);
+      fac_d[t][c][3]->SetLineColor(kBlue);
+      fac_d[t][c][4]->SetLineColor(kBlack);
+      for(Int_t s=0; s<5; s++)
+      {
+        raw_d[t][c][s]->GetXaxis()->SetLabelSize(0.08);
+        raw_d[t][c][s]->GetYaxis()->SetLabelSize(0.08);
+        acc_d[t][c][s]->GetXaxis()->SetLabelSize(0.08);
+        acc_d[t][c][s]->GetYaxis()->SetLabelSize(0.08);
+        mul_d[t][c][s]->GetXaxis()->SetLabelSize(0.08);
+        mul_d[t][c][s]->GetYaxis()->SetLabelSize(0.08);
+        fac_d[t][c][s]->GetXaxis()->SetLabelSize(0.08);
+        fac_d[t][c][s]->GetYaxis()->SetLabelSize(0.08);
+      };
+    };
+  };
+
+
+  // zoom in on abort gaps (zoomIn)
+  // implemented to see if there's fill-dependent afterpulsing effect
+  // in abort gaps when viewing bXing distributions on linear scale
+  Double_t raw_zoom[3][3];
+  Double_t acc_zoom[3][3];
+  Double_t mul_zoom[3][3];
+  Double_t fac_zoom[3][3];
+  Double_t raw_bcc;
+  Double_t acc_bcc;
+  Double_t mul_bcc;
+  Double_t fac_bcc;
+  if(zoomIn && !strcmp(var,"bx"))
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      for(Int_t c=0; c<3; c++)
+      {
+        raw_zoom[t][c]=0;
+        acc_zoom[t][c]=0;
+        mul_zoom[t][c]=0;
+        fac_zoom[t][c]=0;
+        for(Int_t b=32; b<=40; b++)
+        {
+          raw_bcc = raw_d[t][c][4]->GetBinContent(b);
+          acc_bcc = acc_d[t][c][4]->GetBinContent(b);
+          mul_bcc = mul_d[t][c][4]->GetBinContent(b);
+          fac_bcc = fac_d[t][c][4]->GetBinContent(b);
+          raw_zoom[t][c] = (raw_bcc > raw_zoom[t][c]) ? raw_bcc : raw_zoom[t][c];
+          acc_zoom[t][c] = (acc_bcc > acc_zoom[t][c]) ? acc_bcc : acc_zoom[t][c];
+          mul_zoom[t][c] = (mul_bcc > mul_zoom[t][c]) ? mul_bcc : mul_zoom[t][c];
+          fac_zoom[t][c] = (fac_bcc > fac_zoom[t][c]) ? fac_bcc : fac_zoom[t][c];
+        };
+        for(Int_t b=112; b<=120; b++)
+        {
+          raw_bcc = raw_d[t][c][4]->GetBinContent(b);
+          acc_bcc = acc_d[t][c][4]->GetBinContent(b);
+          mul_bcc = mul_d[t][c][4]->GetBinContent(b);
+          fac_bcc = fac_d[t][c][4]->GetBinContent(b);
+          raw_zoom[t][c] = (raw_bcc > raw_zoom[t][c]) ? raw_bcc : raw_zoom[t][c];
+          acc_zoom[t][c] = (acc_bcc > acc_zoom[t][c]) ? acc_bcc : acc_zoom[t][c];
+          mul_zoom[t][c] = (mul_bcc > mul_zoom[t][c]) ? mul_bcc : mul_zoom[t][c];
+          fac_zoom[t][c] = (fac_bcc > fac_zoom[t][c]) ? fac_bcc : fac_zoom[t][c];
+        };
+        raw_zoom[t][c]*=1.1;
+        acc_zoom[t][c]*=1.1;
+        mul_zoom[t][c]*=1.1;
+        fac_zoom[t][c]*=1.1;
+        for(Int_t s=0; s<5; s++)
+        {
+          raw_d[t][c][s]->SetMaximum(raw_zoom[t][c]);
+          acc_d[t][c][s]->SetMaximum(acc_zoom[t][c]);
+          mul_d[t][c][s]->SetMaximum(mul_zoom[t][c]);
+          fac_d[t][c][s]->SetMaximum(fac_zoom[t][c]);
+        };
+      };
+    };
+  };
+
+
+
+  // compute relative luminosities using multiples corrected counts
+  // -- for all arrays, we only fill entries 1-9 (skip 0th entry)
+  //    so that the index matches rellum definition
+  // R1 = (N++ + N-+) / (N+- + N--)
+  // R2 = (N++ + N+-) / (N-+ + N--)
+  // R3 = (N++ + N--) / (N+- + N-+)
+  // R4 = N++ / N--
+  // R5 = N-+ / N--
+  // R6 = N+- / N--
+  // R7 = N++ / N+-
+  // R8 = N-+ / N+-
+  // R9 = N++ / N-+
+  char R_n[3][3][10][128]; // [tbit] [cbit] [rellum]
+  char R_t[3][3][10][128];
+  TH1D * R_d[3][3][10];
+  Double_t mmm[4]; // [sbit]
+  Double_t rrr[10]; // [rellum]
+  for(Int_t t=0; t<3; t++)
+  {
+    for(Int_t c=0; c<3; c++)
+    {
+      // titles
+      sprintf(R_t[t][c][1],"R1 = (N++ + N-+) / (N+- + N--) for %s%s vs. %s",tbit[t],cbit[c],var);
+      sprintf(R_t[t][c][2],"R2 = (N++ + N+-) / (N-+ + N--) for %s%s vs. %s",tbit[t],cbit[c],var);
+      sprintf(R_t[t][c][3],"R3 = (N++ + N--) / (N+- + N-+) for %s%s vs. %s",tbit[t],cbit[c],var);
+      sprintf(R_t[t][c][4],"R4 = N++ / N-- for %s%s vs. %s",tbit[t],cbit[c],var);
+      sprintf(R_t[t][c][5],"R5 = N-+ / N-- for %s%s vs. %s",tbit[t],cbit[c],var);
+      sprintf(R_t[t][c][6],"R6 = N+- / N-- for %s%s vs. %s",tbit[t],cbit[c],var);
+      sprintf(R_t[t][c][7],"R7 = N++ / N+- for %s%s vs. %s",tbit[t],cbit[c],var);
+      sprintf(R_t[t][c][8],"R8 = N-+ / N+- for %s%s vs. %s",tbit[t],cbit[c],var);
+      sprintf(R_t[t][c][9],"R9 = N++ / N-+ for %s%s vs. %s",tbit[t],cbit[c],var);
+      // histogram initialisation
+      for(Int_t r=1; r<=9; r++) 
+      {
+        sprintf(R_n[t][c][r],"R%d_%s%s",r,tbit[t],cbit[c]);
+        R_d[t][c][r] = new TH1D(R_n[t][c][r],R_t[t][c][r],var_bins,var_l,var_h);
+      };
+      // compute relative luminosities
+      for(Int_t b=1; b<=var_bins; b++)
+      {
+        for(Int_t s=0; s<5; s++) 
+        {
+          mmm[s] = mul_d[t][c][s]->GetBinContent(b);
+          tt[s] = tot_d[s]->GetBinContent(b);
+        };
+        if(tt[0]*tt[1]*tt[2]*tt[3]>0)
+        {
+          rrr[1] = (mmm[3] + mmm[1]) / (mmm[2] + mmm[0]);
+          rrr[2] = (mmm[3] + mmm[2]) / (mmm[1] + mmm[0]);
+          rrr[3] = (mmm[3] + mmm[0]) / (mmm[2] + mmm[1]);
+          rrr[4] = mmm[3] / mmm[0];
+          rrr[5] = mmm[1] / mmm[0];
+          rrr[6] = mmm[2] / mmm[0];
+          rrr[7] = mmm[3] / mmm[2];
+          rrr[8] = mmm[1] / mmm[2];
+          rrr[9] = mmm[3] / mmm[1];
+          for(Int_t r=1; r<=9; r++) 
+          {
+            R_d[t][c][r]->SetBinContent(b,rrr[r]);
+            R_d[t][c][r]->SetBinError(b,err_d[t][c][r]->GetBinContent(b));
+          };
+        };
+      };
+    };
+  };
+
+
+
+  // COMPARISONS AND AVERAGES OF RELLUMS --------------------------------------
+  // means of R* 
+  char mean_R_n[3][10][128]; // [tbit] [rellum]
+  char mean_R_t[3][10][128];
+  TH1D * mean_R[3][10];
+  Double_t ave;
+  Float_t unc_b[3];
+  for(Int_t t=0; t<3; t++)
+  {
+    for(Int_t r=1; r<10; r++)
+    {
+      sprintf(mean_R_n[t][r],"mean_R%d_%s",r,tbit[t]);
+      sprintf(mean_R_t[t][r],"mean R%d for %s over e,w,x",r,tbit[t]);
+      mean_R[t][r] = new TH1D(mean_R_n[t][r],mean_R_t[t][r],var_bins,var_l,var_h);
+      for(Int_t b=1; b<=var_bins; b++)
+      {
+        ave=0;
+        for(Int_t c=0; c<3; c++) ave += R_d[t][c][r]->GetBinContent(b);
+        ave /= 3.0;
+        mean_R[t][r]->SetBinContent(b,ave);
+
+        // propagate error bars into mean -- FORMULA
+        unc_b[0] = err_d[t][0][r]->GetBinContent(b);
+        unc_b[1] = err_d[t][1][r]->GetBinContent(b);
+        unc_b[2] = err_d[t][2][r]->GetBinContent(b);
+        unc = 1/3.0 * sqrt( pow(unc_b[0],2) + pow(unc_b[1],2) + pow(unc_b[2],2) );
+        mean_R[t][r]->SetBinError(b,unc);
+      };
+    };
+  };
+
+  // deviations from mean of R*
+  char dev_R_n[3][3][10][128]; // [tbit] [cbit] [rellum]
+  char dev_R_t[3][3][10][256]; 
+  TH1D * dev_R[3][3][10];
+  Double_t dev;
+  for(Int_t t=0; t<3; t++)
+  {
+    for(Int_t c=0; c<3; c++)
+    {
+      for(Int_t r=1; r<10; r++)
+      {
+        sprintf(dev_R_n[t][c][r],"dev_R%d_%s%s",r,tbit[t],cbit[c]);
+        sprintf(dev_R_t[t][c][r],"deviation = R%d - mean R%d for %s%s",r,r,tbit[t],cbit[c]);
+        dev_R[t][c][r] = new TH1D(dev_R_n[t][c][r],dev_R_t[t][c][r],var_bins,var_l,var_h);
+        dev_R[t][c][r]->Add(R_d[t][c][r],mean_R[t][r],1.0,-1.0);
+      };
+    };
+  };
+  
+
+  // compare zdc and vpd
+  char D_n[3][10][128]; // [cbit] [rellum]
+  char D_t[3][10][256];
+  TH1D * D_d[3][10];
+  for(Int_t c=0; c<3; c++)
+  {
+    for(Int_t r=1; r<10; r++)
+    {
+      sprintf(D_n[c][r],"delta_zdc%s_vpd%s_%d",cbit[c],cbit[c],r);
+      sprintf(D_t[c][r],"R%d(zdc%s) minus R%d(vpd%s) vs %s",r,cbit[c],r,cbit[c],var);
+      D_d[c][r] = new TH1D(D_n[c][r],D_t[c][r],var_bins,var_l,var_h);
+      D_d[c][r]->Add(R_d[1][c][r],R_d[2][c][r],1.0,-1.0);
+    };
+  };
+
+
+
+  // compare singles bit combinations (east minus west, east minus coin, west minus coin)
+  // xbit definition: 0=E-W, 1=E-X, 2=W-X
+  char SD_n[3][3][10][128]; // [xbit] [tbit] [rellum]
+  char SD_t[3][3][10][256];
+  TH1D * SD_d[3][3][10]; 
+  for(Int_t t=0; t<3; t++)
+  {
+    for(Int_t r=1; r<10; r++)
+    {
+      sprintf(SD_n[0][t][r],"e_minus_w_diff_%s_%d",tbit[t],r);
+      sprintf(SD_n[1][t][r],"e_minus_x_diff_%s_%d",tbit[t],r);
+      sprintf(SD_n[2][t][r],"w_minus_x_diff_%s_%d",tbit[t],r);
+
+      sprintf(SD_t[0][t][r],"R%d(%se)-R%d(%sw) vs. %s",r,tbit[t],r,tbit[t],var);
+      sprintf(SD_t[1][t][r],"R%d(%se)-R%d(%sx) vs. %s",r,tbit[t],r,tbit[t],var);
+      sprintf(SD_t[2][t][r],"R%d(%sw)-R%d(%sx) vs. %s",r,tbit[t],r,tbit[t],var);
+
+      for(Int_t x=0; x<3; x++) SD_d[x][t][r] = new TH1D(SD_n[x][t][r],SD_t[x][t][r],var_bins,var_l,var_h);
+      
+      SD_d[0][t][r]->Add(R_d[t][0][r],R_d[t][1][r],1.0,-1.0); // E-W
+      SD_d[1][t][r]->Add(R_d[t][0][r],R_d[t][2][r],1.0,-1.0); // E-X
+      SD_d[2][t][r]->Add(R_d[t][1][r],R_d[t][2][r],1.0,-1.0); // W-X
+    };
+  };
+
+
+
+  // set more font sizes
+  for(Int_t r=1; r<10; r++)
+  {
+    for(Int_t c=0; c<3; c++)
+    {
+      D_d[c][r]->GetXaxis()->SetLabelSize(0.08);
+      D_d[c][r]->GetYaxis()->SetLabelSize(0.08);
+      for(Int_t t=0; t<3; t++)
+      {
+        R_d[t][c][r]->GetXaxis()->SetLabelSize(0.08);
+        R_d[t][c][r]->GetYaxis()->SetLabelSize(0.08);
+        dev_R[t][c][r]->GetXaxis()->SetLabelSize(0.08);
+        dev_R[t][c][r]->GetYaxis()->SetLabelSize(0.08);
+      };
+    };
+    for(Int_t t=0; t<3; t++)
+    {
+      mean_R[t][r]->GetXaxis()->SetLabelSize(0.08);
+      mean_R[t][r]->GetYaxis()->SetLabelSize(0.08);
+      for(Int_t x=0; x<3; x++)
+      {
+        SD_d[x][t][r]->GetXaxis()->SetLabelSize(0.08);
+        SD_d[x][t][r]->GetYaxis()->SetLabelSize(0.08);
+      };
+    };
+  };
+
+
+  // constant fits
+  for(Int_t r=1; r<10; r++)
+  {
+    for(Int_t c=0; c<3; c++)
+    {
+      D_d[c][r]->Fit("pol0","Q","",var_l,var_h);
+      D_d[c][r]->Fit("pol0","Q","",var_l,var_h);
+      for(Int_t t=0; t<3; t++)
+      {
+        R_d[t][c][r]->Fit("pol0","Q","",var_l,var_h);
+        R_d[t][c][r]->Fit("pol0","Q","",var_l,var_h);
+        dev_R[t][c][r]->Fit("pol0","Q","",var_l,var_h);
+        dev_R[t][c][r]->Fit("pol0","Q","",var_l,var_h);
+      };
+    };
+    for(Int_t t=0; t<3; t++)
+    {
+      mean_R[t][r]->Fit("pol0","Q","",var_l,var_h);
+      mean_R[t][r]->Fit("pol0","Q","",var_l,var_h);
+      for(Int_t x=0; x<3; x++)
+      {
+        SD_d[x][t][r]->Fit("pol0","Q","",var_l,var_h);
+        SD_d[x][t][r]->Fit("pol0","Q","",var_l,var_h);
+      };
+    };
+  };
+  
+  // compute rate dependence
+  // !!!! computation runs iff var=="i"
+  TH2D * rate_dep[3][3][10]; // [tbit] [cbit] [rellum] -- R3 vs. rate
+  char rate_dep_n[3][3][10][128];
+  char rate_dep_t[3][3][10][256];
+  TH2D * rate_fac[3][3][5]; // [tbit] [cbit] [sbit] -- correction factor vs. rate
+  char rate_fac_n[3][3][5][128];
+  char rate_fac_t[3][3][5][256];
+  TProfile * rate_fac_pfx[3][3][5];
+
+  Double_t R_min[3][3][10];
+  Double_t R_max[3][3][10];
+  Double_t F_min[3][3][5];
+  Double_t F_max[3][3][5];
+  Double_t counts[3][3]; // [tbit] [cbit] 
+  Double_t rate_array[3][3][var_bins_const]; // [tbit] [cbit] [run index]
+  Double_t rate_array_max[3][3];
+  Double_t zzz;
+  if(!strcmp(var,"i"))
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      for(Int_t c=0; c<3; c++)
+      {
+        // fill rate_array and compute max rates for each detector and cbit
+        rate_array_max[t][c] = 0;
+        for(Int_t b=1; b<var_bins; b++)
+        {
+          counts[t][c] = 0;
+          for(Int_t s=0; s<4; s++) 
+            counts[t][c] += mul_d[t][c][s]->GetBinContent(b);
+          rate_array[t][c][b-1] = counts[t][c] / time_array[b-1];
+          if(rate_array[t][c][b-1] > rate_array_max[t][c]) 
+            rate_array_max[t][c] = rate_array[t][c][b-1];
+        };
+
+        // fill R3 rate dependence 2d hists
+        for(Int_t r=1; r<10; r++)
+        {
+          sprintf(rate_dep_n[t][c][r],"rate_dep_R%d_%s%s",r,tbit[t],cbit[c]);
+          sprintf(rate_dep_t[t][c][r],"R%d vs. %s%s corrected rate",r,tbit[t],cbit[c]);
+          R_min[t][c][r] = R_d[t][c][r]->GetMinimum();
+          R_max[t][c][r] = R_d[t][c][r]->GetMaximum();
+          R_min[t][c][r] -= R_min[t][c][r] * 0.1;
+          R_max[t][c][r] += R_max[t][c][r] * 0.1;
+          rate_dep[t][c][r] = new TH2D(rate_dep_n[t][c][r],rate_dep_t[t][c][r],
+              100,0,rate_array_max[t][c],
+              100,R_min[t][c][r],R_max[t][c][r]);
+          for(Int_t b=1; b<var_bins; b++)
+          {
+            zzz = R_d[t][c][r]->GetBinContent(b);
+            rate_dep[t][c][r]->Fill(rate_array[t][c][b-1],zzz);
+          };
+        };
+
+        // fill correction factor rate dependence plots
+        for(Int_t s=0; s<4; s++)
+        {
+          sprintf(rate_fac_n[t][c][s],"rate_fac_%s%s_s%d",tbit[t],cbit[c],s);
+          sprintf(rate_fac_t[t][c][s],"correction factor vs. %s%s corrected rate -- %s",tbit[t],cbit[c],leg);
+          F_min[t][c][s] = fac_d[t][c][s]->GetMinimum();
+          F_max[t][c][s] = fac_d[t][c][s]->GetMaximum();
+          F_min[t][c][s] -= F_min[t][c][s] * 0.1;
+          F_max[t][c][s] += F_max[t][c][s] * 0.1;
+          rate_fac[t][c][s] = new TH2D(rate_fac_n[t][c][s],rate_fac_t[t][c][s],
+            10,0,rate_array_max[t][c],
+            100,F_min[t][c][s],F_max[t][c][s]);
+          for(Int_t b=1; b<var_bins; b++)
+          {
+            zzz = fac_d[t][c][s]->GetBinContent(b);
+            rate_fac[t][c][s]->Fill(rate_array[t][c][b-1],zzz);
+          };
+          rate_fac_pfx[t][c][s] = rate_fac[t][c][s]->ProfileX();
+        };
+      };
+    }; // eo bit loops
+  }; // eo if var=="i"
+
+
+  // change tick marks (divisions) for bXing distributions
+  if(!strcmp(var,"bx"))
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      for(Int_t c=0; c<3; c++)
+      {
+        for(Int_t s=0; s<5; s++)
+        {
+          raw_d[t][c][s]->SetNdivisions(524);
+          acc_d[t][c][s]->SetNdivisions(524);
+          mul_d[t][c][s]->SetNdivisions(524);
+          fac_d[t][c][s]->SetNdivisions(524);
+        };
+      };
+    };
+  };
+
+  Int_t sf; // drawing s]cale factor
+  if(printPNGs) sf=3;
+  else sf=1;
+
+
+  // bXing consistency study
+  // -- consider only points in bXing distribution which
+  //    are within 10% of the maximum bin, build a TGraph
+  //    with just those points, and do a fit
+  TGraph * cons[3][3][5]; // [tbit] [cbit] [spinbit]
+  TF1 * cons_fit[3][3][5];
+  char cons_fit_n[3][3][5][32];
+  Double_t mul_max[3][3];
+  Int_t cons_cnt[3][3][5];
+  TCanvas * cons_canv[5];
+  char cons_canv_n[5][32];
+  for(Int_t s=0; s<5; s++)
+  {
+    sprintf(cons_canv_n[s],"cons_canv_s%d",s);
+    cons_canv[s] = new TCanvas(cons_canv_n[s],cons_canv_n[s],1100*sf,700*sf);
+  };
+  char cons_canv_print[3][5][64]; // [tbit] [spinbit]
+  TLine * cutoff[3][3][5];
+  Double_t cutoff_val=0.8; // keep only points within maximum * cutoff_val
+  Double_t content;
+  gStyle->SetOptFit(1);
+  if(specificFill>0 && !strcmp(var,"bx"))
+  {
+    // get maxima
+    for(Int_t t=0; t<3; t++)
+    {
+      for(Int_t c=0; c<3; c++)
+      {
+        mul_max[t][c] = mul_d[t][c][4]->GetMaximum();
+      };
+    };
+    // loop 
+    for(Int_t s=0; s<5; s++)
+    {
+      for(Int_t t=0; t<3; t++)
+      {
+        sprintf(cons_canv_print[t][s],"cons_pngs/%s_%d_s%d.png",tbit[t],specificFill,s);
+        for(Int_t c=0; c<3; c++)
+        {
+          cons[t][c][s] = new TGraph();
+          cons[t][c][s]->SetMarkerStyle(kFullCircle);
+          if(s==0) cons[t][c][s]->SetMarkerColor(kGreen+2);
+          else if(s==1) cons[t][c][s]->SetMarkerColor(kOrange+7);
+          else if(s==2) cons[t][c][s]->SetMarkerColor(kRed);
+          else if(s==3) cons[t][c][s]->SetMarkerColor(kBlue);
+          else if(s==4) cons[t][c][s]->SetMarkerColor(kBlack);
+          cons_cnt[t][c][s]=0;
+          cutoff[t][c][s] = new TLine(0,mul_max[t][c]*cutoff_val,120,mul_max[t][c]*cutoff_val);
+          cutoff[t][c][s]->SetLineColor(kGreen);
+          for(Int_t bb=1; bb<=mul_d[t][c][s]->GetNbinsX(); bb++)
+          {
+            content = mul_d[t][c][s]->GetBinContent(bb);
+            if(content>(cutoff_val*mul_max[t][c]) && !(bb>=32 && bb<=40) && !(bb>=112))
+            {
+              content /= mul_max[t][c]; // rescale by total max only
+              cons[t][c][s]->SetPoint(cons_cnt[t][c][s],bb-1,content);
+              cons_cnt[t][c][s]++;
+            };
+          };
+          sprintf(cons_fit_n[t][c][s],"cfit_%d_%d_%d",t,c,s);
+          cons_fit[t][c][s] = new TF1(cons_fit_n[t][c][s],"pol0",0,120);
+          cons[t][c][s]->Fit(cons_fit[t][c][s],"","",0,120);
+          gSystem->RedirectOutput("cons_study","a");
+          printf("%d %d %d %d %f %f\n",specificFill,t,c,s,
+                  cons_fit[t][c][s]->GetParameter(0),cons_fit[t][c][s]->GetParError(0));
+          gSystem->RedirectOutput(0);
+        };
+        cons_canv[s]->Divide(1,3);
+        for(Int_t pad=1; pad<=3; pad++)
+        {
+          cons_canv[s]->cd(pad);
+          cons_canv[s]->GetPad(pad)->SetGrid(1,1);
+          //cons_canv->GetPad(pad)->SetLogy();
+          //cons[t][pad-1][s]->GetYaxis()->SetLimits(mul_max[t][pad-1]*cutoff_val-0.01*mul_max[t][pad-1],
+                                                   //mul_max[t][pad-1]+0.01*mul_max[t][pad-1]);
+          cons[t][pad-1][s]->Draw("ap");
+          cons[t][pad-1][s]->GetYaxis()->SetRangeUser(0.7,1.1);
+          cons[t][pad-1][s]->GetXaxis()->SetLimits(0,120);
+          //cutoff[t][pad-1][s]->Draw();
+        }
+        cons_canv[s]->Print(cons_canv_print[t][s],"png");
+        cons_canv[s]->Clear();
+      };
+    };
+  };
+
+
+        
+
+
+
+
+
+
+  // draw output canvasess
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(1);
+  gStyle->SetTitleFontSize(0.08);
+
+  // controls drawing order whether we plot
+  // fifth spinbit (sum over ++ -- +- -+) or not
+  Int_t first_draw,first_same_draw;
+  if(zeroAborts)
+  {
+    first_draw=0;
+    first_same_draw=1;
+  }
+  else
+  {
+    first_draw=4;
+    first_same_draw=0;
+  };
+
+  TCanvas * c_raw[3];
+  char c_raw_n[3][32]; // [tbit] [char buffer]
+  for(Int_t t=0; t<3; t++) 
+  {
+    sprintf(c_raw_n[t],"c_raw_%s",tbit[t]);
+    c_raw[t] = new TCanvas(c_raw_n[t],c_raw_n[t],1100*sf,700*sf);
+    c_raw[t]->Divide(1,3);
+    for(Int_t ccc=1; ccc<=3; ccc++) 
+    {
+      c_raw[t]->GetPad(ccc)->SetGrid(1,1);
+      if(drawLog) c_raw[t]->GetPad(ccc)->SetLogy();
+      c_raw[t]->cd(ccc);
+      raw_d[t][ccc-1][first_draw]->Draw();
+      for(Int_t s=first_same_draw; s<4; s++) raw_d[t][ccc-1][s]->Draw("same"); 
+    };
+  };
+
+  TCanvas * c_acc[3];
+  char c_acc_n[3][32]; // [tbit] [char buffer]
+  for(Int_t t=0; t<3; t++) 
+  {
+    sprintf(c_acc_n[t],"c_acc_%s",tbit[t]);
+    c_acc[t] = new TCanvas(c_acc_n[t],c_acc_n[t],1100*sf,700*sf);
+    c_acc[t]->Divide(1,3);
+    for(Int_t ccc=1; ccc<=3; ccc++) 
+    {
+      if(drawLog) c_acc[t]->GetPad(ccc)->SetLogy();
+      c_acc[t]->GetPad(ccc)->SetGrid(1,1);
+      c_acc[t]->cd(ccc);
+      acc_d[t][ccc-1][first_draw]->Draw();
+      for(Int_t s=first_same_draw; s<4; s++) acc_d[t][ccc-1][s]->Draw("same");
+    };
+  };
+
+  TCanvas * c_mul[3];
+  char c_mul_n[3][32]; // [tbit] [char buffer]
+  for(Int_t t=0; t<3; t++) 
+  {
+    sprintf(c_mul_n[t],"c_mul_%s",tbit[t]);
+    c_mul[t] = new TCanvas(c_mul_n[t],c_mul_n[t],1100*sf,700*sf);
+    c_mul[t]->Divide(1,3);
+    for(Int_t ccc=1; ccc<=3; ccc++) 
+    {
+      c_mul[t]->GetPad(ccc)->SetGrid(1,1);
+      if(drawLog) c_mul[t]->GetPad(ccc)->SetLogy();
+      c_mul[t]->cd(ccc);
+      mul_d[t][ccc-1][first_draw]->Draw();
+      for(Int_t s=first_same_draw; s<4; s++) mul_d[t][ccc-1][s]->Draw("same");
+    };
+  };
+  
+
+
+  TCanvas * c_fac[3];
+  char c_fac_n[3][32]; // [tbit] [char buffer]
+  for(Int_t t=0; t<3; t++) 
+  {
+    sprintf(c_fac_n[t],"c_fac_%s",tbit[t]);
+    c_fac[t] = new TCanvas(c_fac_n[t],c_fac_n[t],1100*sf,700*sf);
+    c_fac[t]->Divide(1,3);
+    for(Int_t ccc=1; ccc<=3; ccc++) 
+    {
+      c_fac[t]->GetPad(ccc)->SetGrid(1,1);
+      if(drawLog) c_fac[t]->GetPad(ccc)->SetLogy();
+      c_fac[t]->cd(ccc);
+      fac_d[t][ccc-1][first_draw]->Draw();
+      for(Int_t s=first_same_draw; s<4; s++) fac_d[t][ccc-1][s]->Draw("same");
+    };
+  };
+
+  
+  TCanvas * c_R[3][10]; // [tbit] [rellum]
+  char c_R_n[3][10][32]; // [tbit] [rellum] [char buffer]
+  for(Int_t t=0; t<3; t++)
+  {
+    for(Int_t r=1; r<10; r++)
+    {
+      sprintf(c_R_n[t][r],"c_R%d_%s",r,tbit[t]);
+      c_R[t][r] = new TCanvas(c_R_n[t][r],c_R_n[t][r],1100*sf,700*sf);
+      c_R[t][r]->Divide(1,3);
+      for(Int_t ccc=1; ccc<=3; ccc++) 
+      {
+        c_R[t][r]->GetPad(ccc)->SetGrid(1,1);
+        c_R[t][r]->cd(ccc);
+        R_d[t][ccc-1][r]->Draw();
+      };
+    };
+  };
+
+  TCanvas * c_D[10]; // [rellum]
+  char c_D_n[10][32]; // [rellum] [char buffer]
+  for(Int_t r=1; r<10; r++)
+  {
+    sprintf(c_D_n[r],"c_R%d_zdc_minus_vpd",r);
+    c_D[r] = new TCanvas(c_D_n[r],c_D_n[r],1100*sf,700*sf);
+    c_D[r]->Divide(1,3);
+    for(Int_t ccc=1; ccc<=3; ccc++)
+    {
+      c_D[r]->GetPad(ccc)->SetGrid(1,1);
+      c_D[r]->cd(ccc);
+      D_d[ccc-1][r]->Draw();
+    };
+  };
+
+  TCanvas * c_SD[3][10]; // [xbit] [rellum]
+  char c_SD_n[3][10][32]; 
+  for(Int_t r=1; r<10; r++)
+  {
+    sprintf(c_SD_n[0][r],"c_R%d_east_minus_west",r);
+    sprintf(c_SD_n[1][r],"c_R%d_east_minus_coin",r);
+    sprintf(c_SD_n[2][r],"c_R%d_west_minus_coin",r);
+    for(Int_t x=0; x<3; x++)
+    {
+      c_SD[x][r] = new TCanvas(c_SD_n[x][r],c_SD_n[x][r],1100*sf,700*sf);
+      c_SD[x][r]->Divide(1,3);
+      for(Int_t ccc=1; ccc<=3; ccc++)
+      {
+        c_SD[x][r]->GetPad(ccc)->SetGrid(1,1);
+        c_SD[x][r]->cd(ccc);
+        SD_d[x][ccc-1][r]->Draw();
+      };
+    };
+  };
+
+  TCanvas * c_mean[10]; // [rellum]
+  char c_mean_n[10][32];
+  for(Int_t r=1; r<10; r++)
+  {
+    sprintf(c_mean_n[r],"c_mean_R%d",r);
+    c_mean[r] = new TCanvas(c_mean_n[r],c_mean_n[r],1100*sf,700*sf);
+    c_mean[r]->Divide(1,3);
+    for(Int_t ccc=1; ccc<=3; ccc++)
+    {
+      c_mean[r]->GetPad(ccc)->SetGrid(1,1);
+      c_mean[r]->cd(ccc);
+      mean_R[ccc-1][r]->Draw();
+    };
+  };
+
+  TCanvas * c_dev[3][10]; // [tbit] [rellum]
+  char c_dev_n[3][10][32];
+  for(Int_t r=1; r<10; r++)
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      sprintf(c_dev_n[t][r],"c_deviation_R%d_%s",r,tbit[t]);
+      c_dev[t][r] = new TCanvas(c_dev_n[t][r],c_dev_n[t][r],1100*sf,700*sf);
+      c_dev[t][r]->Divide(1,3);
+      for(Int_t ccc=1; ccc<=3; ccc++)
+      {
+        c_dev[t][r]->GetPad(ccc)->SetGrid(1,1);
+        c_dev[t][r]->cd(ccc);
+        dev_R[t][ccc-1][r]->Draw();
+      };
+    };
+  };
+
+
+  TCanvas * c_spin_pat = new TCanvas("c_spin_pat","c_spin_pat",1100*sf,700*sf);
+  spin_pat_rel->GetXaxis()->SetLabelSize(0.08);
+  spin_pat_rel->GetYaxis()->SetLabelSize(0.08);
+  spin_pat_rel->Draw();
+
+
+
+  TCanvas * c_rate_fac[3]; // [tbit]
+  char c_rate_fac_n[3][32];
+  if(!strcmp(var,"i"))
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      sprintf(c_rate_fac_n[t],"c_rate_fac_%s",tbit[t]);
+      c_rate_fac[t] = new TCanvas(c_rate_fac_n[t],c_rate_fac_n[t],800*sf,800*sf);
+      c_rate_fac[t]->Divide(2,2);
+      for(Int_t c=0; c<3; c++)
+      {
+        c_rate_fac[t]->cd(c+1);
+        c_rate_fac[t]->GetPad(c+1)->SetGrid(1,1);
+        rate_fac_pfx[t][c][0]->SetLineColor(kGreen+2);
+        rate_fac_pfx[t][c][1]->SetLineColor(kOrange+7);
+        rate_fac_pfx[t][c][2]->SetLineColor(kRed);
+        rate_fac_pfx[t][c][3]->SetLineColor(kBlue);
+        rate_fac_pfx[t][c][0]->Draw();
+        for(Int_t s=1; s<4; s++) rate_fac_pfx[t][c][s]->Draw("same");
+      };
+    };
+  };
+
+
+
+
+
+  // write 
+  if(specificFill==0)
+  {
+    c_spin_pat->Write();
+    for(Int_t t=0; t<3; t++) c_raw[t]->Write();
+    for(Int_t t=0; t<3; t++) c_acc[t]->Write();
+    for(Int_t t=0; t<3; t++) c_mul[t]->Write();
+    for(Int_t t=0; t<3; t++) c_fac[t]->Write();
+    for(Int_t r=1; r<10; r++)
+    {
+      for(Int_t t=0; t<3; t++)
+      {
+        c_R[t][r]->Write();
+      };
+    };
+    for(Int_t r=1; r<10; r++) c_mean[r]->Write();
+    for(Int_t r=1; r<10; r++) c_D[r]->Write();
+    for(Int_t r=1; r<10; r++) 
+    {
+      for(Int_t x=0; x<3; x++)
+      {
+        c_SD[x][r]->Write();
+      };
+    };
+    for(Int_t r=1; r<10; r++)
+    {
+      for(Int_t t=0; t<3; t++)
+      {
+        c_dev[t][r]->Write();
+      };
+    };
+    if(!strcmp(var,"i"))
+    {
+      for(Int_t r=1; r<10; r++)
+      {
+        for(Int_t t=0; t<3; t++)
+        {
+          for(Int_t c=0; c<3; c++)
+          {
+            rate_dep[t][c][r]->Write();
+          };
+        };
+      };
+      /*
+      for(Int_t t=0; t<3; t++)
+      {
+        for(Int_t c=0; c<3; c++)
+        {
+          for(Int_t s=0; s<4; s++)
+          {
+            rate_fac[t][c][s]->Write();
+            rate_fac_pfx[t][c][s]->Write();
+          };
+        };
+      };
+      */
+      if(!strcmp(var,"i"))
+      {
+        for(Int_t t=0; t<3; t++)
+        {
+          c_rate_fac[t]->Write();
+        };
+      };
+    };
+  };
+
+  
+  // produce output tree (iff var=="i")
+  TTree * rtr = new TTree("rtr","rtr");
+  Float_t RR[3][10]; // [tbit] [rellum]
+  Float_t RR_err[3][10]; // [tbit] [rellum]
+  Float_t RRe[3][10]; // [tbit] [rellum]
+  Float_t RRw[3][10]; // [tbit] [rellum]
+  Float_t RRx[3][10]; // [tbit] [rellum]
+  Float_t d_vz[3]; // [cbit] --- diagnostic (only for R3!)
+  Float_t d_xx[3][3]; // [xbit] [tbit]
+  if(!strcmp(var,"i") && specificFill==0)
+  {
+    rtr->Branch("i",&index,"i/I");
+    rtr->Branch("runnum",&runnum,"runnum/I");
+    rtr->Branch("fill",&fill,"fill/I");
+    rtr->Branch("t",&time,"t/D");
+
+    rtr->Branch("R1_bbce",&(RRe[0][1]),"R1_bbce/F"); // bbce relative luminosity
+    rtr->Branch("R2_bbce",&(RRe[0][2]),"R2_bbce/F");
+    rtr->Branch("R3_bbce",&(RRe[0][3]),"R3_bbce/F");
+    rtr->Branch("R4_bbce",&(RRe[0][4]),"R4_bbce/F");
+    rtr->Branch("R5_bbce",&(RRe[0][5]),"R5_bbce/F");
+    rtr->Branch("R6_bbce",&(RRe[0][6]),"R6_bbce/F");
+    rtr->Branch("R7_bbce",&(RRe[0][7]),"R7_bbce/F");
+    rtr->Branch("R8_bbce",&(RRe[0][8]),"R8_bbce/F");
+    rtr->Branch("R9_bbce",&(RRe[0][9]),"R9_bbce/F");
+    rtr->Branch("R1_zdce",&(RRe[1][1]),"R1_zdce/F"); // zdce relative luminosity
+    rtr->Branch("R2_zdce",&(RRe[1][2]),"R2_zdce/F");
+    rtr->Branch("R3_zdce",&(RRe[1][3]),"R3_zdce/F");
+    rtr->Branch("R4_zdce",&(RRe[1][4]),"R4_zdce/F");
+    rtr->Branch("R5_zdce",&(RRe[1][5]),"R5_zdce/F");
+    rtr->Branch("R6_zdce",&(RRe[1][6]),"R6_zdce/F");
+    rtr->Branch("R7_zdce",&(RRe[1][7]),"R7_zdce/F");
+    rtr->Branch("R8_zdce",&(RRe[1][8]),"R8_zdce/F");
+    rtr->Branch("R9_zdce",&(RRe[1][9]),"R9_zdce/F");
+    rtr->Branch("R1_vpde",&(RRe[2][1]),"R1_vpde/F"); // vpde relative luminosity
+    rtr->Branch("R2_vpde",&(RRe[2][2]),"R2_vpde/F");
+    rtr->Branch("R3_vpde",&(RRe[2][3]),"R3_vpde/F");
+    rtr->Branch("R4_vpde",&(RRe[2][4]),"R4_vpde/F");
+    rtr->Branch("R5_vpde",&(RRe[2][5]),"R5_vpde/F");
+    rtr->Branch("R6_vpde",&(RRe[2][6]),"R6_vpde/F");
+    rtr->Branch("R7_vpde",&(RRe[2][7]),"R7_vpde/F");
+    rtr->Branch("R8_vpde",&(RRe[2][8]),"R8_vpde/F");
+    rtr->Branch("R9_vpde",&(RRe[2][9]),"R9_vpde/F");
+
+    rtr->Branch("R1_bbcw",&(RRw[0][1]),"R1_bbcw/F"); // bbcw relative luminosity
+    rtr->Branch("R2_bbcw",&(RRw[0][2]),"R2_bbcw/F");
+    rtr->Branch("R3_bbcw",&(RRw[0][3]),"R3_bbcw/F");
+    rtr->Branch("R4_bbcw",&(RRw[0][4]),"R4_bbcw/F");
+    rtr->Branch("R5_bbcw",&(RRw[0][5]),"R5_bbcw/F");
+    rtr->Branch("R6_bbcw",&(RRw[0][6]),"R6_bbcw/F");
+    rtr->Branch("R7_bbcw",&(RRw[0][7]),"R7_bbcw/F");
+    rtr->Branch("R8_bbcw",&(RRw[0][8]),"R8_bbcw/F");
+    rtr->Branch("R9_bbcw",&(RRw[0][9]),"R9_bbcw/F");
+    rtr->Branch("R1_zdcw",&(RRw[1][1]),"R1_zdcw/F"); // zdcw relative luminosity
+    rtr->Branch("R2_zdcw",&(RRw[1][2]),"R2_zdcw/F");
+    rtr->Branch("R3_zdcw",&(RRw[1][3]),"R3_zdcw/F");
+    rtr->Branch("R4_zdcw",&(RRw[1][4]),"R4_zdcw/F");
+    rtr->Branch("R5_zdcw",&(RRw[1][5]),"R5_zdcw/F");
+    rtr->Branch("R6_zdcw",&(RRw[1][6]),"R6_zdcw/F");
+    rtr->Branch("R7_zdcw",&(RRw[1][7]),"R7_zdcw/F");
+    rtr->Branch("R8_zdcw",&(RRw[1][8]),"R8_zdcw/F");
+    rtr->Branch("R9_zdcw",&(RRw[1][9]),"R9_zdcw/F");
+    rtr->Branch("R1_vpdw",&(RRw[2][1]),"R1_vpdw/F"); // vpdw relative luminosity
+    rtr->Branch("R2_vpdw",&(RRw[2][2]),"R2_vpdw/F");
+    rtr->Branch("R3_vpdw",&(RRw[2][3]),"R3_vpdw/F");
+    rtr->Branch("R4_vpdw",&(RRw[2][4]),"R4_vpdw/F");
+    rtr->Branch("R5_vpdw",&(RRw[2][5]),"R5_vpdw/F");
+    rtr->Branch("R6_vpdw",&(RRw[2][6]),"R6_vpdw/F");
+    rtr->Branch("R7_vpdw",&(RRw[2][7]),"R7_vpdw/F");
+    rtr->Branch("R8_vpdw",&(RRw[2][8]),"R8_vpdw/F");
+    rtr->Branch("R9_vpdw",&(RRw[2][9]),"R9_vpdw/F");
+
+    rtr->Branch("R1_bbcx",&(RRx[0][1]),"R1_bbcx/F"); // bbcx relative luminosity
+    rtr->Branch("R2_bbcx",&(RRx[0][2]),"R2_bbcx/F");
+    rtr->Branch("R3_bbcx",&(RRx[0][3]),"R3_bbcx/F");
+    rtr->Branch("R4_bbcx",&(RRx[0][4]),"R4_bbcx/F");
+    rtr->Branch("R5_bbcx",&(RRx[0][5]),"R5_bbcx/F");
+    rtr->Branch("R6_bbcx",&(RRx[0][6]),"R6_bbcx/F");
+    rtr->Branch("R7_bbcx",&(RRx[0][7]),"R7_bbcx/F");
+    rtr->Branch("R8_bbcx",&(RRx[0][8]),"R8_bbcx/F");
+    rtr->Branch("R9_bbcx",&(RRx[0][9]),"R9_bbcx/F");
+    rtr->Branch("R1_zdcx",&(RRx[1][1]),"R1_zdcx/F"); // zdcx relative luminosity
+    rtr->Branch("R2_zdcx",&(RRx[1][2]),"R2_zdcx/F");
+    rtr->Branch("R3_zdcx",&(RRx[1][3]),"R3_zdcx/F");
+    rtr->Branch("R4_zdcx",&(RRx[1][4]),"R4_zdcx/F");
+    rtr->Branch("R5_zdcx",&(RRx[1][5]),"R5_zdcx/F");
+    rtr->Branch("R6_zdcx",&(RRx[1][6]),"R6_zdcx/F");
+    rtr->Branch("R7_zdcx",&(RRx[1][7]),"R7_zdcx/F");
+    rtr->Branch("R8_zdcx",&(RRx[1][8]),"R8_zdcx/F");
+    rtr->Branch("R9_zdcx",&(RRx[1][9]),"R9_zdcx/F");
+    rtr->Branch("R1_vpdx",&(RRx[2][1]),"R1_vpdx/F"); // vpdx relative luminosity
+    rtr->Branch("R2_vpdx",&(RRx[2][2]),"R2_vpdx/F");
+    rtr->Branch("R3_vpdx",&(RRx[2][3]),"R3_vpdx/F");
+    rtr->Branch("R4_vpdx",&(RRx[2][4]),"R4_vpdx/F");
+    rtr->Branch("R5_vpdx",&(RRx[2][5]),"R5_vpdx/F");
+    rtr->Branch("R6_vpdx",&(RRx[2][6]),"R6_vpdx/F");
+    rtr->Branch("R7_vpdx",&(RRx[2][7]),"R7_vpdx/F");
+    rtr->Branch("R8_vpdx",&(RRx[2][8]),"R8_vpdx/F");
+    rtr->Branch("R9_vpdx",&(RRx[2][9]),"R9_vpdx/F");
+
+    // -- mean rellum branches
+    rtr->Branch("R1_bbc_mean",&(RR[0][1]),"R1_bbc_mean/F"); // mean bbc relative luminosity
+    rtr->Branch("R2_bbc_mean",&(RR[0][2]),"R2_bbc_mean/F");
+    rtr->Branch("R3_bbc_mean",&(RR[0][3]),"R3_bbc_mean/F");
+    rtr->Branch("R4_bbc_mean",&(RR[0][4]),"R4_bbc_mean/F");
+    rtr->Branch("R5_bbc_mean",&(RR[0][5]),"R5_bbc_mean/F");
+    rtr->Branch("R6_bbc_mean",&(RR[0][6]),"R6_bbc_mean/F");
+    rtr->Branch("R7_bbc_mean",&(RR[0][7]),"R7_bbc_mean/F");
+    rtr->Branch("R8_bbc_mean",&(RR[0][8]),"R8_bbc_mean/F");
+    rtr->Branch("R9_bbc_mean",&(RR[0][9]),"R9_bbc_mean/F");
+    rtr->Branch("R1_zdc_mean",&(RR[1][1]),"R1_zdc_mean/F"); // mean zdc relative luminosity
+    rtr->Branch("R2_zdc_mean",&(RR[1][2]),"R2_zdc_mean/F");
+    rtr->Branch("R3_zdc_mean",&(RR[1][3]),"R3_zdc_mean/F");
+    rtr->Branch("R4_zdc_mean",&(RR[1][4]),"R4_zdc_mean/F");
+    rtr->Branch("R5_zdc_mean",&(RR[1][5]),"R5_zdc_mean/F");
+    rtr->Branch("R6_zdc_mean",&(RR[1][6]),"R6_zdc_mean/F");
+    rtr->Branch("R7_zdc_mean",&(RR[1][7]),"R7_zdc_mean/F");
+    rtr->Branch("R8_zdc_mean",&(RR[1][8]),"R8_zdc_mean/F");
+    rtr->Branch("R9_zdc_mean",&(RR[1][9]),"R9_zdc_mean/F");
+    rtr->Branch("R1_vpd_mean",&(RR[2][1]),"R1_vpd_mean/F"); // mean vpd relative luminosity
+    rtr->Branch("R2_vpd_mean",&(RR[2][2]),"R2_vpd_mean/F");
+    rtr->Branch("R3_vpd_mean",&(RR[2][3]),"R3_vpd_mean/F");
+    rtr->Branch("R4_vpd_mean",&(RR[2][4]),"R4_vpd_mean/F");
+    rtr->Branch("R5_vpd_mean",&(RR[2][5]),"R5_vpd_mean/F");
+    rtr->Branch("R6_vpd_mean",&(RR[2][6]),"R6_vpd_mean/F");
+    rtr->Branch("R7_vpd_mean",&(RR[2][7]),"R7_vpd_mean/F");
+    rtr->Branch("R8_vpd_mean",&(RR[2][8]),"R8_vpd_mean/F");
+    rtr->Branch("R9_vpd_mean",&(RR[2][9]),"R9_vpd_mean/F");
+
+
+    // mean R3 errors
+    rtr->Branch("R1_bbc_mean_err",&(RR_err[0][1]),"R1_bbc_mean_err/F"); // bbc rellum error
+    rtr->Branch("R2_bbc_mean_err",&(RR_err[0][2]),"R2_bbc_mean_err/F");
+    rtr->Branch("R3_bbc_mean_err",&(RR_err[0][3]),"R3_bbc_mean_err/F");
+    rtr->Branch("R4_bbc_mean_err",&(RR_err[0][4]),"R4_bbc_mean_err/F");
+    rtr->Branch("R5_bbc_mean_err",&(RR_err[0][5]),"R5_bbc_mean_err/F");
+    rtr->Branch("R6_bbc_mean_err",&(RR_err[0][6]),"R6_bbc_mean_err/F");
+    rtr->Branch("R7_bbc_mean_err",&(RR_err[0][7]),"R7_bbc_mean_err/F");
+    rtr->Branch("R8_bbc_mean_err",&(RR_err[0][8]),"R8_bbc_mean_err/F");
+    rtr->Branch("R9_bbc_mean_err",&(RR_err[0][9]),"R9_bbc_mean_err/F");
+    rtr->Branch("R1_zdc_mean_err",&(RR_err[1][1]),"R1_zdc_mean_err/F"); // zdc rellum error
+    rtr->Branch("R2_zdc_mean_err",&(RR_err[1][2]),"R2_zdc_mean_err/F");
+    rtr->Branch("R3_zdc_mean_err",&(RR_err[1][3]),"R3_zdc_mean_err/F");
+    rtr->Branch("R4_zdc_mean_err",&(RR_err[1][4]),"R4_zdc_mean_err/F");
+    rtr->Branch("R5_zdc_mean_err",&(RR_err[1][5]),"R5_zdc_mean_err/F");
+    rtr->Branch("R6_zdc_mean_err",&(RR_err[1][6]),"R6_zdc_mean_err/F");
+    rtr->Branch("R7_zdc_mean_err",&(RR_err[1][7]),"R7_zdc_mean_err/F");
+    rtr->Branch("R8_zdc_mean_err",&(RR_err[1][8]),"R8_zdc_mean_err/F");
+    rtr->Branch("R9_zdc_mean_err",&(RR_err[1][9]),"R9_zdc_mean_err/F");
+    rtr->Branch("R1_vpd_mean_err",&(RR_err[2][1]),"R1_vpd_mean_err/F"); // vpd rellum error
+    rtr->Branch("R2_vpd_mean_err",&(RR_err[2][2]),"R2_vpd_mean_err/F");
+    rtr->Branch("R3_vpd_mean_err",&(RR_err[2][3]),"R3_vpd_mean_err/F");
+    rtr->Branch("R4_vpd_mean_err",&(RR_err[2][4]),"R4_vpd_mean_err/F");
+    rtr->Branch("R5_vpd_mean_err",&(RR_err[2][5]),"R5_vpd_mean_err/F");
+    rtr->Branch("R6_vpd_mean_err",&(RR_err[2][6]),"R6_vpd_mean_err/F");
+    rtr->Branch("R7_vpd_mean_err",&(RR_err[2][7]),"R7_vpd_mean_err/F");
+    rtr->Branch("R8_vpd_mean_err",&(RR_err[2][8]),"R8_vpd_mean_err/F");
+    rtr->Branch("R9_vpd_mean_err",&(RR_err[2][9]),"R9_vpd_mean_err/F");
+
+
+    // -- diagnostic branches (only for R3)
+    rtr->Branch("d_vz_e",&(d_vz[0]),"d_vz_e/F"); // ZDCE - VPDE  ( [cbit] )
+    rtr->Branch("d_vz_w",&(d_vz[1]),"d_vz_w/F"); // ZDCW - VPDW
+    rtr->Branch("d_vz_x",&(d_vz[2]),"d_vz_x/F"); // ZDCX - VPDX
+
+    rtr->Branch("d_ew_bbc",&(d_xx[0][0]),"d_ew_bbc/F"); // BBCE - BBCW  ( [xbit] [tbit] )
+    rtr->Branch("d_ew_zdc",&(d_xx[0][1]),"d_ew_zdc/F"); // ZDCE - ZDCW
+    rtr->Branch("d_ew_vpd",&(d_xx[0][2]),"d_ew_vpd/F"); // VPDE - VPDW
+
+    rtr->Branch("d_ex_bbc",&(d_xx[1][0]),"d_ex_bbc/F"); // BBCE - BBCX 
+    rtr->Branch("d_ex_zdc",&(d_xx[1][1]),"d_ex_zdc/F"); // ZDCE - ZDCX
+    rtr->Branch("d_ex_vpd",&(d_xx[1][2]),"d_ex_vpd/F"); // VPDE - VPDX
+
+    rtr->Branch("d_wx_bbc",&(d_xx[2][0]),"d_wx_bbc/F"); // BBCW - BBCX 
+    rtr->Branch("d_wx_zdc",&(d_xx[2][1]),"d_wx_zdc/F"); // ZDCW - ZDCX
+    rtr->Branch("d_wx_vpd",&(d_xx[2][2]),"d_wx_vpd/F"); // VPDW - VPDX
+
+    
+    for(Int_t b=1; b<=var_bins; b++)
+    {
+      index = b;
+      runnum = runnum_array[b-1];
+      fill = fill_array[b-1];
+      time = time_array[b-1];
+      //printf("%d\n",time);
+      for(Int_t t=0; t<3; t++)
+      {
+        for(Int_t r=1; r<10; r++)
+        {
+          RR[t][r] = mean_R[t][r]->GetBinContent(b);
+          RRe[t][r] = R_d[t][0][r]->GetBinContent(b);
+          RRw[t][r] = R_d[t][1][r]->GetBinContent(b);
+          RRx[t][r] = R_d[t][2][r]->GetBinContent(b);
+          RR_err[t][r] = mean_R[t][r]->GetBinError(b);
+        };
+      };
+      for(Int_t c=0; c<3; c++)
+      {
+        d_vz[c] = D_d[c][3]->GetBinContent(b);
+      };
+      for(Int_t t=0; t<3; t++)
+      {
+        for(Int_t x=0; x<3; x++)
+        {
+          d_xx[x][t] = SD_d[x][t][3]->GetBinContent(b);
+        };
+      };
+      rtr->Fill();
+    };
+    rtr->Write();
+  };
+
+  // print pngs
+  if(printPNGs)
+  {
+    char pngdir[32]; 
+    if(specificFill==0) sprintf(pngdir,"png_rellum");
+    else sprintf(pngdir,"pdf_bXings_fills/%d",specificFill);
+    char mkdir[64];
+    sprintf(mkdir,".! mkdir -p %s",pngdir);
+    gROOT->ProcessLine(mkdir);
+    char c_raw_png[3][256];
+    char c_acc_png[3][256];
+    char c_mul_png[3][256];
+    char c_fac_png[3][256];
+    char c_R_png[3][10][256];
+    char c_dev_png[3][10][256];
+    char c_mean_png[10][256];
+    char c_D_png[10][256];
+    char c_SD_png[3][10][256];
+    char c_rate_fac_png[3][256];
+    char file_type[4];
+    if(specificFill>0) sprintf(file_type,"pdf"); // make pdfs instead of pngs for specific fills
+    else sprintf(file_type,"png");
+    for(Int_t t=0; t<3; t++) 
+    {
+      sprintf(c_raw_png[t],"%s/raw_%s_%s.%s",pngdir,tbit[t],var,file_type);
+      sprintf(c_acc_png[t],"%s/acc_%s_%s.%s",pngdir,tbit[t],var,file_type);
+      sprintf(c_mul_png[t],"%s/mul_%s_%s.%s",pngdir,tbit[t],var,file_type);
+      sprintf(c_fac_png[t],"%s/fac_%s_%s.%s",pngdir,tbit[t],var,file_type);
+      sprintf(c_rate_fac_png[t],"%s/rate_fac_%s.%s",pngdir,tbit[t],file_type);
+      c_raw[t]->Print(c_raw_png[t],file_type);
+      c_acc[t]->Print(c_acc_png[t],file_type);
+      c_mul[t]->Print(c_mul_png[t],file_type);
+      c_fac[t]->Print(c_fac_png[t],file_type);
+      if(specificFill==0)
+      {
+        for(Int_t r=1; r<10; r++) 
+        {
+          sprintf(c_R_png[t][r],"%s/R%d_%s_%s.png",pngdir,r,tbit[t],var);
+          sprintf(c_dev_png[t][r],"%s/deviation_R%d_%s_%s.png",pngdir,r,tbit[t],var);
+          c_R[t][r]->Print(c_R_png[t][r],"png");
+          c_dev[t][r]->Print(c_dev_png[t][r],"png");
+        };
+      };
+    };
+    if(specificFill==0)
+    {
+      for(Int_t r=1; r<10; r++)
+      {
+        sprintf(c_D_png[r],"%s/zdc_minus_vpd_R%d_%s.png",pngdir,r,var);
+        sprintf(c_SD_png[0][r],"%s/east_minus_west_R%d_%s.png",pngdir,r,var);
+        sprintf(c_SD_png[1][r],"%s/east_minus_coin_R%d_%s.png",pngdir,r,var);
+        sprintf(c_SD_png[2][r],"%s/west_minus_coin_R%d_%s.png",pngdir,r,var);
+        sprintf(c_mean_png[r],"%s/mean_R%d_%s.png",pngdir,r,var);
+        c_D[r]->Print(c_D_png[r],"png");
+        for(Int_t x=0; x<3; x++)
+          c_SD[x][r]->Print(c_SD_png[x][r],"png");
+        c_mean[r]->Print(c_mean_png[r],"png");
+      };
+    char spin_pat_png[64];
+    sprintf(spin_pat_png,"%s/spin_pat_%s.png",pngdir,var);
+    c_spin_pat->Print(spin_pat_png,"png");
+    };
+    if(specificFill==0 && !strcmp(var,"i"))
+    {
+      for(Int_t t=0; t<3; t++)
+        c_rate_fac[t]->Print(c_rate_fac_png[t],"png");
+    };
+  };
+
+
+  // print cuts
+  for(Int_t s=0; s<5; s++)
+  {
+    for(Int_t t=0; t<3; t++)
+    {
+      for(Int_t c=0; c<3; c++)
+      {
+        printf("raw_cut[%d][%d][%d]=%s\n",t,c,s,raw_cut[t][c][s]);
+      };
+    };
+  };
+  for(Int_t s=0; s<4; s++) printf("tot_cut[%d]=%s\n",s,tot_cut[s]);
+  printf("%s created\n",outname);
+  printf("it's best to use the TBrowser to look at objects in this file\n");
+
+
+  // testing
+  /*
+  TFile * testfile = new TFile("testfile.root","RECREATE");
+  TCanvas * test_canv = new TCanvas("test_canv","test_canv",1100*sf,700*sf);
+  test_canv->Divide(1,3);
+  if(specificFill>0)
+  {
+    for(Int_t ccc=0; ccc<3; ccc++)
+    {
+      test_canv->cd(ccc+1);
+      mul_d[1][ccc][4]->Fit("pol0","","",45,70);
+      mul_d[1][ccc][4]->Draw();
+      mul_d[1][ccc][4]->Write();
+    }
+    test_canv->Print("test_image.png","png");
+  };
+  */
+};

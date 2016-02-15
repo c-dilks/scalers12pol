@@ -1,0 +1,29 @@
+#!/bin/bash
+# builds hpss files and targets to copy them to, upon
+# execution of hpss_user.pl file retrieval script
+
+grep sca FILE_LIST > FILE_LIST.lst
+cat goodruns.dat | awk '{print $1}' > GOOD_LIST.lst
+
+year=2012
+hpss_dir="/home/starsink/raw/daq"
+count=0
+file_num=1
+size=150
+
+while read line; do
+  runnum=$(echo $line | cut -c4-11)
+  day=$(echo $runnum | cut -c3-5)
+  run=$(echo $runnum | cut -c6-8)
+
+  grepstr=$(grep $runnum GOOD_LIST.lst)
+  if [ -n "$grepstr" ]; then
+    let count++
+    echo $hpss_dir/$year/$day/$runnum/$line /gpfs01/star/scratch/dilks/sca$year/$line >> files_to_retrieve.$file_num.lst
+  fi
+
+  if [ $count -eq $size ]; then
+    count=0
+    let file_num++
+  fi
+done < FILE_LIST.lst

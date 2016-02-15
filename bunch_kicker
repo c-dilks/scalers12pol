@@ -1,0 +1,152 @@
+#!/bin/bash
+#
+# first loops through bXing distribution for a fill, counting the number of
+# each spin bit; arrays called arr0, arr1, arr2, arr3 are filled with 
+#  [fill] [bx] [spinbit]
+#
+# then, we determine how many bXings to remove based on the spinbit with
+# the least number of bXings
+#
+# a list of unique random numbers is generated for each spinbit; the number of 
+# random numbers generated is equal to the number of bXings to remove
+#
+# the generated random numbers correspond to array indices of arr{0,1,2,3};
+# the chosen bXings to remove are added to the file "kicked" and some
+# diagnostic information is echoed to "kicked_stat"
+
+run_randomizer=0
+
+# manually removed bunches
+> kicked_manual
+echo 16570 22 >> kicked_manual
+echo 16582 61 >> kicked_manual
+echo 16587 29 >> kicked_manual
+echo 16593 9 >> kicked_manual
+echo 16597 27 >> kicked_manual
+echo 16602 56 >> kicked_manual
+echo 16618 40 >> kicked_manual
+echo 16625 23 >> kicked_manual
+echo 16626 12 >> kicked_manual
+echo 16626 19 >> kicked_manual
+echo 16650 58 >> kicked_manual
+echo 16655 75 >> kicked_manual
+echo 16656 15 >> kicked_manual
+echo 16668 26 >> kicked_manual
+echo 16669 26 >> kicked_manual
+echo 16671 96 >> kicked_manual
+echo 16678 70 >> kicked_manual
+echo 16685 23 >> kicked_manual
+echo 16686 17 >> kicked_manual
+echo 16697 108 >> kicked_manual
+echo 16701 21 >> kicked_manual
+echo 16701 28 >> kicked_manual
+echo 16704 90 >> kicked_manual
+echo 16704 101 >> kicked_manual
+echo 16705 51 >> kicked_manual
+echo 16720 7 >> kicked_manual
+echo 16731 60 >> kicked_manual
+
+> kicked
+> kicked_stat
+# loop through spin pattern files
+for file in $(ls spinpat/*.spin); do
+  # reset counters and bxing arrays (bash doesn't do multidimensional arrays)
+  for s in {0..3}; do
+    cnt[$s]=0
+    for b in {0..119}; do
+      arr0[$b]=0
+      arr1[$b]=0
+      arr2[$b]=0
+      arr3[$b]=0
+    done
+  done
+
+  fill=$(echo $file | sed 's/spinpat\///g;s/\.spin//g')
+  echo "fill $fill"
+  echo "fill $fill" >> kicked_stat
+
+  # loop through bXings in a fill 
+  while read line; do
+    countup=1
+    bx=$(echo $line | awk '{print $1}')
+    blue=$(echo $line | awk '{print $2}')
+    yell=$(echo $line | awk '{print $3}')
+    grep_result=$(grep -w "$fill $bx" kicked_manual)
+    
+    spinbit=-1
+    if [ $blue -eq -1 -a $yell -eq -1 ]; then spinbit=0;
+    elif [ $blue -eq -1 -a $yell -eq 1 ]; then spinbit=1;
+    elif [ $blue -eq 1 -a $yell -eq -1 ]; then spinbit=2;
+    elif [ $blue -eq 1 -a $yell -eq 1 ]; then spinbit=3; fi
+
+    # determine bunch was manually kicked, else increment counters and fill bXing arrays
+    if [ -n "$grep_result" ]; then
+      echo "manually kicked $grep_result $blue $yell" >> kicked_stat
+      echo $grep_result $spinbit >> kicked
+    else 
+      if [ $spinbit -eq 0 ]; then arr0[${cnt[0]}]="$fill $bx 0"; 
+      elif [ $spinbit -eq 1 ]; then arr1[${cnt[1]}]="$fill $bx 1"; 
+      elif [ $spinbit -eq 2 ]; then arr2[${cnt[2]}]="$fill $bx 2"; 
+      elif [ $spinbit -eq 3 ]; then arr3[${cnt[3]}]="$fill $bx 3"; fi
+      if [ $spinbit -ge 0 ]; then cnt[$spinbit]=$(echo ${cnt[$spinbit]}+1|bc); fi
+    fi
+  done < $file
+
+
+  # determine spinbit with least number of bXings
+  min_spinbit=10
+  tmp_var=120
+  for s in {0..3}; do
+    if [ ${cnt[$s]} -lt $tmp_var ]; then 
+      tmp_var=${cnt[$s]} 
+      min_spinbit=$s
+    fi
+  done
+  min_cnt=$tmp_var
+  echo ${cnt[0]} ${cnt[1]} ${cnt[2]} ${cnt[3]} $min_spinbit $min_cnt >> kicked_stat
+
+
+  # determine how many random bXings for each spinbit to kick
+  for s in {0..3}; do
+    remove[$s]=$(echo ${cnt[$s]}-$min_cnt | bc)
+  done
+  echo "    ${remove[0]} ${remove[1]} ${remove[2]} ${remove[3]}" >> kicked_stat
+
+
+  # generate 10 random numbers; if there are less unique numbers than 
+  # there are bunches to kick, make 10 new random numbers
+  if [ $run_randomizer -eq 1 ]; then
+    for s in {0..3}; do
+
+      > rand_file_$s
+      root -b -q 'RNG.C('${cnt[$s]}','${remove[$s]}','${s}')'
+
+      # deprecated /dev/urandom random number generator
+      #lc=0
+      #> rand_file_$s
+      #while [ $lc -lt ${remove[$s]} ]; do
+        #for i in {1..10}; do # THIS WAS 10 I SWITCHED IT TO REMOVE[]
+          #rand=$(echo $(head -c1 /dev/urandom | od -t u1 | cut -c9-)%${cnt[$s]}|bc)
+          #echo $rand >> rand_file_tmp
+        #done
+        #cat rand_file_tmp | sort | uniq | head -n${remove[$s]} > rand_file_$s
+        #rm rand_file_tmp
+        #lc=$(cat rand_file_$s | wc -l)
+      #done
+
+      if [ -e rand_file_$s ]; then
+        while read rand_line; do
+          if [ $s -eq 0 ]; then echo ${arr0[$rand_line]} >> kicked;
+          elif [ $s -eq 1 ]; then echo ${arr1[$rand_line]} >> kicked;
+          elif [ $s -eq 2 ]; then echo ${arr2[$rand_line]} >> kicked;
+          elif [ $s -eq 3 ]; then echo ${arr3[$rand_line]} >> kicked; fi
+        done < rand_file_$s
+      fi
+    done
+    for s in {0..3}; do
+      cp rand_file_${s} rand_files/rand_file_${s}_${fill}
+    done
+  fi
+done
+
+rm rand_file_{0,1,2,3}

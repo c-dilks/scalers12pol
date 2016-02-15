@@ -1,0 +1,48 @@
+#!/bin/bash
+# fetch spin pattern files from cdev using goodruns.dat
+
+# build fill.txt
+awk '{print $1" "$3}' < goodruns.dat > fill.txt
+
+SPINPAT=spinpat
+FILLFILE=$(pwd)/fill.txt
+
+FILLTMP=0
+BLUENAME="blue-buckets-polarizationfillpatterns.dat"
+YELLNAME="yell-buckets-polarizationfillpatterns.dat"
+BLUENAMEOUT="blue-buckets-polarization-fillpatterns.fill"
+YELLNAMEOUT="yell-buckets-polarization-fillpatterns.fill"
+
+mkdir -p $SPINPAT
+pushd $SPINPAT
+
+> badfills
+echo "downloading spin patterns for fills in fill.txt..."
+while read line; do
+  FILL=${line:9:5}
+  if [ $FILL -ne $FILLTMP ]; then
+    if [ -e ${BLUENAMEOUT}${FILL}.dat -a -e ${YELLNAMEOUT}${FILL}.dat ]; then
+      echo "[***] already have spinpat F$FILL"
+    else
+      wget -nc \
+        http://online.star.bnl.gov/cdev2012/fillHistory/F$FILL/$BLUENAME
+      wget -nc \
+        http://online.star.bnl.gov/cdev2012/fillHistory/F$FILL/$YELLNAME
+      if [ -e $BLUENAME -a -e $YELLNAME ]; then
+        mv -v $BLUENAME ${BLUENAMEOUT}${FILL}.dat
+        mv -v $YELLNAME ${YELLNAMEOUT}${FILL}.dat
+      else
+        FILLCOMP=$(grep $FILL badfills)
+        echo $FILL >> badfills
+      fi
+      echo "[***] downloaded spinpat F$FILL"
+    fi
+    FILLTMP=$FILL
+  fi
+done < $FILLFILE
+
+popd
+
+echo "missing fills:"
+cat $SPINPAT/badfills
+#rm $SPINPAT/badfills

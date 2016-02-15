@@ -1,0 +1,29 @@
+#!/bin/bash
+# for a particular fill, this script converts the spin pattern
+# into a table with columns
+# [fill#] [bunch crossing] [blue spin] [yellow spin]
+
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 [fill]"
+  exit 1
+fi
+
+fill=$1
+filestr="-buckets-polarizationfillpatterns.fill$fill.dat"
+dir="spinpat"
+
+paste $dir/{blue,yell}$filestr > $dir/cat$fill.dat
+
+> $dir/$fill.spin
+while read line; do
+  bx3=$(echo $line | awk '{print $2}')
+  blue=$(echo $line | awk '{print $3}')
+  yell=$(echo $line | awk '{print $6}')
+  mod=$(echo $bx3%3|bc)
+  bx=$(echo $bx3/3|bc)
+  #echo $bx3 $mod $bx >> testfile
+  if [ $mod -eq 1 ]; then
+    echo $bx $blue $yell >> $dir/$fill.spin
+  fi
+done < $dir/cat$fill.dat
+rm $dir/cat$fill.dat

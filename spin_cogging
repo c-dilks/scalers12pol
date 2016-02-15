@@ -1,0 +1,70 @@
+#!/bin/bash
+# reads spin patterns from $FMSTXT/spinpat CDEV files, corrects
+# for cogging at STAR, and outputs spinpat/[fill].spin files with columns
+# [STAR bXing] [blue spin] [yell spin]
+#
+# -- see cogging.ods for cogging info
+# -- see log.07.01.14 for details on this script as replacement for
+#    deprecated 'spin_table.C', which obtains cogging offset from
+#    methods of Fill and FillData classes
+# -- since there is odd number of spin flips between ion source and 
+#    STAR, the spin is OPPOSITE that quoted on CDEV; this sign change
+#    is implemented below
+
+
+cat fill.txt | awk '{print $2}' | uniq > fill_tmp.txt
+rm spinpat/*.spin
+polstr="-buckets-polarization-fillpatterns.fill"
+while read fill; do
+  bluefile=spinpat/blue$polstr$fill.dat
+  yellfile=spinpat/yell$polstr$fill.dat
+
+  if [ -f $bluefile -a -f $yellfile ]; then
+
+    echo $fill
+    > spinpat/bXing.blue.$fill.dat
+    > spinpat/bXing.yell.$fill.dat
+
+    # build spinpat/bXing.[blue/yell].[fill].dat with columns 
+    # [star bXing no.] [spin], and then sort them
+
+    # blue loop
+    # bXing same as bucket no. / 3
+    while read line; do
+      bucket=$(echo $line | awk '{print $2}')
+      spin=$(echo $line | awk '{print $3}')
+      spin=$(echo "-1*$spin" | bc )
+      mod=$(echo "$bucket%3" | bc)
+      if [ $mod -eq 1 ]; then
+        bXing=$(echo "$bucket/3" | bc)
+        echo "$bXing $spin" >> spinpat/bXing.blue.$fill.dat
+      fi
+    done < $bluefile
+
+    # yell loop
+    # bXing is bucket no. / 3, plus 40, mod 120 (due to cogging)
+    while read line; do
+      bucket=$(echo $line | awk '{print $2}')
+      spin=$(echo $line | awk '{print $3}')
+      spin=$(echo "-1*$spin" | bc )
+      mod=$(echo "$bucket%3" | bc)
+      if [ $mod -eq 1 ]; then
+        bXing=$(echo "($bucket/3+40)%120" | bc)
+        echo "$bXing $spin" >> spinpat/bXing.yell.$fill.dat
+      fi
+    done < $yellfile
+
+    mv spinpat/bXing.blue.$fill.dat spinpat/tmp
+    sort -V -k 1,1 spinpat/tmp > spinpat/bXing.blue.$fill.dat
+    
+    mv spinpat/bXing.yell.$fill.dat spinpat/tmp
+    sort -V -k 1,1 spinpat/tmp > spinpat/bXing.yell.$fill.dat
+
+    > spinpat/$fill.spin
+    cat spinpat/bXing.yell.$fill.dat | awk '{print $2}' > spinpat/bXing.yell.$fill.tmp
+    paste spinpat/bXing.{blue.$fill.dat,yell.$fill.tmp} > spinpat/$fill.spin
+  fi
+done < fill_tmp.txt
+
+rm fill_tmp.txt
+rm spinpat/tmp

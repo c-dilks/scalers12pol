@@ -1,0 +1,23 @@
+empty bXings via raw ZDC scalers that are not consistent with spin patterns
+
+17384 - 29, 30, 117**
+17416 - 79
+17491 - 105
+17519 - 94*, 109*
+17520 - 0*
+17529 - 97
+17534 - 112**
+17553 - 73
+17554 - 7, 14
+17555 - 61
+17576 - 94
+
+* means bunch was only ~one order of magnitude lower than mean
+** means bunch was low in abort gap
+
+
+
+also cut "afterpulsing-like" for the following fills:
+
+17512 - 40, 41
+17512-17520 - 0, 1, 40, 41

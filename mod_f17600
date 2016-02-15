@@ -1,0 +1,57 @@
+#!/bin/bash
+# special script which writes modified spin pattern file
+# (dat file from cdev) for F17600;
+# 
+# F17600 had a problem where the blue beam ion intensity 
+# was dropping during the fill while the yellow beam
+# ion intensity was stable; these runs should be removed from
+# any analysis dependent on relative luminosity
+# -- these runs are omitted in 'accumulate' script
+#
+# the last 14 runs of this fill have stable beam intensities,
+# but the spin pattern was modified
+#
+# accumulate script has a filter which removes the runs during
+# bad part of 17600
+#
+# I already copied the 17600 cdev spin patterns to backup files
+# (*.fill17600.dat.bad); this script uses thes files to write corrected 
+# spin pattern files (*.fill17600.dat), which should ONLY 
+# be used for last 14 runs
+#
+# bad F17600 pattern: B + + - - - - + +
+#                     Y - - + + - - + +
+#
+# good patterns: B + + - - + + - -
+#                Y - - + + + + - -
+#
+# so the modification is: blue-->yellow with sign flip
+#                         yellow-->blue with sign flip
+
+dir="spinpat"
+blue_bad=$dir/"blue-buckets-polarization-fillpatterns.fill17600.dat.bad"
+yell_bad=$dir/"yell-buckets-polarization-fillpatterns.fill17600.dat.bad"
+blue_new=$dir/"blue-buckets-polarization-fillpatterns.fill17600.dat"
+yell_new=$dir/"yell-buckets-polarization-fillpatterns.fill17600.dat"
+
+> $blue_new
+> $yell_new
+
+# blue-->yellow with sign flip
+while read line; do
+  x=$(echo $line | awk '{print $1}')
+  y=$(echo $line | awk '{print $2}') # bx
+  z=$(echo $line | awk '{print $3}') # spin
+  z=$(echo "-1*$z" | bc)
+  echo "$x $y $z" >> $yell_new
+done < $blue_bad
+  
+# yellow-->blue with sign flip
+while read line; do
+  x=$(echo $line | awk '{print $1}')
+  y=$(echo $line | awk '{print $2}') # bx
+  z=$(echo $line | awk '{print $3}') # spin
+  z=$(echo "-1*$z" | bc)
+  echo "$x $y $z" >> $blue_new
+done < $yell_bad
+  

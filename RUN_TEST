@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+  echo "usage: $0 [test char]"
+  exit 
+fi
+
+./bunch_kicker_pattern_selector
+#./bunch_kicker
+./accumulate
+./rellum_all
+./rellum_runs
+./wait_for_condor
+root -b -q sumTree.C
+root -b -q combineAll.C
+pushd matrix
+pushd rootfiles
+hadd -f all.root matxR*.root
+popd
+./RunPatterns
+mkdir -p tests/$1
+cp -v fit_result.*.root tests/$1/
+cp -v colour.*.root tests/$1/
+cp -vr pats tests/$1/
+cp -v ../counts.root tests/$1/
+cp -v ../rtree.root tests/$1/
+echo "test $1 complete"
