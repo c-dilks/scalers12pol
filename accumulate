@@ -2,8 +2,14 @@
 # collects all the datfiles produced by "read_scalers"
 # and appends run number and fill number to each line
 
+if [ $# -ne 1 ]; then
+  echo "usage: $0 [board (10=ZDCW, 11=ZDCE)]"
+  exit
+fi
+board=$1
+
 dir="datfiles"
-f="acc.dat"
+f="acc_${board}.dat"
 
 # delete any remaining tmp files
 touch $dir/a.tmp
@@ -24,7 +30,7 @@ rm $f
 i=0
 filli=0
 filltmp=0
-for file in $(ls run*.dat); do
+for file in $(ls run*_${board}.dat); do
   runnum=$(echo $file | cut -c4-11)
   fill=$(grep $runnum ../fill_time.txt | awk '{print $2}')
   runtime=$(grep $runnum ../fill_time.txt | awk '{print $3}')
@@ -45,7 +51,7 @@ for file in $(ls run*.dat); do
       filltmp=$fill
       let filli++
     fi
-    echo "$i $runnum $filli $fill $runtime" 
+    echo "$file $i $runnum $filli $fill $runtime" 
     # add columns for run index, run #, and fill # and write to acc file
     while read line; do
       echo "$i $runnum $filli $fill $runtime $line" >> $f
@@ -61,4 +67,4 @@ rm fill_time.txt.tmp
 
 echo "$dir/$f written"
 
-root -b -q 'mk_tree.C("'$dir/$f'")'
+root -b -q 'mk_tree.C("'$dir/$f'",'$board')'

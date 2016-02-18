@@ -5,8 +5,9 @@
 
 void draw_spin_patterns(Bool_t onlyDrawEmptyBuckets=false)
 {
-  TFile * infile = new TFile("counts.root","READ");
-  TTree * tr = (TTree*) infile->Get("sca");
+  TFile * infile = new TFile("counts_bd10.root","READ");
+  //TTree * tr = (TTree*) infile->Get("sca");
+  TTree * tr = (TTree*) infile->Get("acc");
 
   // count number of fills
   // add fill numbers to fill_arr

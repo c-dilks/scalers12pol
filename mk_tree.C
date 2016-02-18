@@ -2,30 +2,32 @@
 // -- this also allows for empty bunches documented in "pathologies.dat" to be manually omitted
 //    from relative luminosity computation ("CLEAN UP PROCEDURE")
 
-void mk_tree(const char * acc_file="datfiles/acc.dat")
+void mk_tree(const char * acc_file="datfiles/acc.dat", Int_t board)
 {
   // read acc file into tree
+  TString outfile_n = Form("counts_bd%d.root",board);
+  TFile * outfile = new TFile(outfile_n.Data(),"RECREATE");
   TTree * acc = new TTree("acc","counts tree from acc.dat");
   char cols[2048];
-  char bbc_cols[256];
-  char zdc_cols[256];
-  char vpd_cols[256];
+  char hor_cols[256];
+  char ver_cols[256];
+  char trun_cols[256];
   for(Int_t i=0; i<=7; i++)
   {
     if(i==0) 
     {
-      sprintf(bbc_cols,"bbc_%d/D",i);
-      sprintf(zdc_cols,"zdc_%d/D",i);
-      sprintf(vpd_cols,"vpd_%d/D",i);
+      sprintf(hor_cols,"hor%d/D",i);
+      sprintf(ver_cols,"ver%d/D",i);
+      sprintf(trun_cols,"trun%d/D",i);
     }
     else
     {
-      sprintf(bbc_cols,"%s:bbc_%d/D",bbc_cols,i);
-      sprintf(zdc_cols,"%s:zdc_%d/D",zdc_cols,i);
-      sprintf(vpd_cols,"%s:vpd_%d/D",vpd_cols,i);
+      sprintf(hor_cols,"%s:hor%d/D",hor_cols,i);
+      sprintf(ver_cols,"%s:ver%d/D",ver_cols,i);
+      sprintf(trun_cols,"%s:trun%d/D",trun_cols,i);
     };
   };
-  sprintf(cols,"i/I:runnum/I:fi/I:fill/I:t/D:bx/I:%s:%s:%s:tot_bx/D:blue/I:yell/I",bbc_cols,zdc_cols,vpd_cols);
+  sprintf(cols,"i/I:runnum/I:fi/I:fill/I:t/D:bx/I:%s:%s:%s:front/D:back/D:goodTAC/D:tot_bx/D:blue/I:yell/I",hor_cols,ver_cols,trun_cols);
   printf("%s\n",cols);
   acc->ReadFile(acc_file,cols);
 
@@ -36,9 +38,10 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
 
   // set branch addresses to read through acc tree
   Int_t index,runnum,fill_index,fill,bx;
-  Double_t bbc[8];
-  Double_t zdc[8];
-  Double_t vpd[8];
+  Double_t hor[8];
+  Double_t ver[8];
+  Double_t trun[8];
+  Double_t front,back,goodTAC;
   Double_t time;
   Double_t tot_bx;
   Int_t blue,yell;
@@ -49,9 +52,12 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
   acc->SetBranchAddress("t",&time);
   acc->SetBranchAddress("bx",&bx);
   char str[16];
-  for(Int_t i=0; i<8; i++) { sprintf(str,"bbc_%d",i); acc->SetBranchAddress(str,&bbc[i]); };
-  for(Int_t i=0; i<8; i++) { sprintf(str,"zdc_%d",i); acc->SetBranchAddress(str,&zdc[i]); };
-  for(Int_t i=0; i<8; i++) { sprintf(str,"vpd_%d",i); acc->SetBranchAddress(str,&vpd[i]); };
+  for(Int_t i=0; i<8; i++) { sprintf(str,"hor%d",i); acc->SetBranchAddress(str,&hor[i]); };
+  for(Int_t i=0; i<8; i++) { sprintf(str,"ver%d",i); acc->SetBranchAddress(str,&ver[i]); };
+  for(Int_t i=0; i<8; i++) { sprintf(str,"trun%d",i); acc->SetBranchAddress(str,&trun[i]); };
+  acc->SetBranchAddress("front",&front);
+  acc->SetBranchAddress("back",&back);
+  acc->SetBranchAddress("goodTAC",&goodTAC);
   acc->SetBranchAddress("tot_bx",&tot_bx);
   acc->SetBranchAddress("blue",&blue);
   acc->SetBranchAddress("yell",&yell);
@@ -59,15 +65,14 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
 
   // build arrays for restructuring; arrays are needed so that
   // we can implement bXing shift corrections
-  Double_t bbce_arr[IMAX][120];
-  Double_t bbcw_arr[IMAX][120];
-  Double_t bbcx_arr[IMAX][120];
-  Double_t zdce_arr[IMAX][120];
-  Double_t zdcw_arr[IMAX][120];
-  Double_t zdcx_arr[IMAX][120];
-  Double_t vpde_arr[IMAX][120];
-  Double_t vpdw_arr[IMAX][120];
-  Double_t vpdx_arr[IMAX][120];
+
+  Double_t hor_arr[8][IMAX][128];
+  Double_t ver_arr[8][IMAX][128];
+  Double_t trun_arr[8][IMAX][128];
+  Double_t front_arr[IMAX][128];
+  Double_t back_arr[IMAX][128];
+  Double_t goodTAC_arr[IMAX][128];
+
   Int_t runnum_arr[IMAX];
   Int_t fi_arr[IMAX];
   Int_t fill_arr[IMAX];
@@ -80,29 +85,31 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
 
   // restructure tree into one suitable for analysis
   TTree * sca = new TTree("sca","restructured tree");
-  Double_t bbce,bbcw,bbcx; // e=east, w=west, x=coincidence
-  Double_t zdce,zdcw,zdcx;
-  Double_t vpde,vpdw,vpdx;
   Bool_t okEntry,kicked;
+  Double_t hor_shift[8];
+  Double_t ver_shift[8];
+  Double_t trun_shift[8];
+  Double_t front_shift,back_shift,goodTAC_shift;
+  Int_t bxq,fq;
   sca->Branch("i",&index,"i/I");
   sca->Branch("runnum",&runnum,"runnum/I");
   sca->Branch("fi",&fill_index,"fi/I");
   sca->Branch("fill",&fill,"fill/I");
   sca->Branch("t",&time,"t/D");
   sca->Branch("bx",&bx,"bx/I");
-  sca->Branch("bbce",&bbce,"bbce/D");
-  sca->Branch("bbcw",&bbcw,"bbcw/D");
-  sca->Branch("bbcx",&bbcx,"bbcx/D");
-  sca->Branch("zdce",&zdce,"zdce/D");
-  sca->Branch("zdcw",&zdcw,"zdcw/D");
-  sca->Branch("zdcx",&zdcx,"zdcx/D");
-  sca->Branch("vpde",&vpde,"vpde/D");
-  sca->Branch("vpdw",&vpdw,"vpdw/D");
-  sca->Branch("vpdx",&vpdx,"vpdx/D");
+  char str2[16];
+  for(Int_t i=0; i<8; i++) { sprintf(str,"hor%d",i); sprintf(str2,"%s/D",str); sca->Branch(str,&hor_shift[i],str2); };
+  for(Int_t i=0; i<8; i++) { sprintf(str,"ver%d",i); sprintf(str2,"%s/D",str); sca->Branch(str,&ver_shift[i],str2); };
+  for(Int_t i=0; i<8; i++) { sprintf(str,"trun%d",i); sprintf(str2,"%s/D",str); sca->Branch(str,&trun_shift[i],str2); };
+  sca->Branch("front",&front_shift,"front/D");
+  sca->Branch("back",&back_shift,"back/D");
+  sca->Branch("goodTAC",&goodTAC_shift,"goodTAC/D");
   sca->Branch("tot_bx",&tot_bx,"tot_bx/D");
   sca->Branch("blue",&blue,"blue/I");
   sca->Branch("yell",&yell,"yell/I");
-  sca->Branch("kicked",&kicked,"kicked/O");
+  //sca->Branch("kicked",&kicked,"kicked/O"); // deprecated
+  sca->Branch("bxq",&bxq,"bxq/I"); // bx quality [0=good, 1=first bad, 2=afterpulse after bad (for npulse bx's)]
+  sca->Branch("fq",&fq,"fq/I"); // fill quality [0=good, 1=modulation, 2=some slats out, 3=modulation+slats out, 4=very bad]
 
 
   // read kicked bunches tree from "kicked" file
@@ -119,6 +126,7 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
 
     // -- see doc for bit details
     // BBC, ZDC, VPD bits: [ x w e ]
+    /*
     bbce = bbc[1] + bbc[3] + bbc[5] + bbc[7]; // e + we + xe + xwe
     bbcw = bbc[2] + bbc[3] + bbc[6] + bbc[7]; // w + we + xw + xwe
     bbcx = bbc[3] + bbc[7]; // we + xwe
@@ -130,6 +138,7 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
     vpde = vpd[1] + vpd[3] + vpd[5] + vpd[7]; // e + we + xe + xwe
     vpdw = vpd[2] + vpd[3] + vpd[6] + vpd[7]; // w + we + xw + xwe
     vpdx = vpd[3] + vpd[7]; // we + xwe
+    */
 
 
     // KICKED BUNCHES
@@ -166,16 +175,25 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
     // store data into arrays, implementing bXing shift corrections on scalers
     if(fill==16570)
     {
-      bbce_arr[index-1][(bx+113)%120] = bbce; // shift down 7 bXings
-      bbcw_arr[index-1][(bx+113)%120] = bbcw;
-      bbcx_arr[index-1][(bx+113)%120] = bbcx;
-      zdce_arr[index-1][(bx+113)%120] = zdce; // shift down 7 bXings
-      zdcw_arr[index-1][(bx+113)%120] = zdcw;
-      zdcx_arr[index-1][(bx+113)%120] = zdcx;
-      vpde_arr[index-1][(bx+113)%120] = vpde; // shift down 7 bXings
-      vpdw_arr[index-1][(bx+113)%120] = vpdw;
-      vpdx_arr[index-1][(bx+113)%120] = vpdx;
+      for(int x=0; x<8; x++)
+      {
+        /*
+        hor_arr[x][index-1][(bx+113)%128] = hor[x];     // shift down 7 bXings (not needed in ZDC-SMD??)
+        ver_arr[x][index-1][(bx+113)%128] = ver[x];
+        trun_arr[x][index-1][(bx+113)%128] = trun[x];
+        front_arr[index-1][(bx+113)%128] = front;
+        back_arr[index-1][(bx+113)%128] = back;
+        goodTAC_arr[index-1][(bx+113)%128] = goodTAC;
+        */
+        hor_arr[x][index-1][bx] = hor[x];     // no shift
+        ver_arr[x][index-1][bx] = ver[x];
+        trun_arr[x][index-1][bx] = trun[x];
+        front_arr[index-1][bx] = front;
+        back_arr[index-1][bx] = back;
+        goodTAC_arr[index-1][bx] = goodTAC;
+      };
     }
+    /*
     else if(fill == 16582 ||
             fill == 16586 ||
             fill == 16587 || 
@@ -195,17 +213,18 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
       vpdw_arr[index-1][(bx+1)%120] = vpdw;
       vpdx_arr[index-1][(bx+1)%120] = vpdx;
     }
+    */
     else
     {
-      bbce_arr[index-1][bx] = bbce;
-      bbcw_arr[index-1][bx] = bbcw;
-      bbcx_arr[index-1][bx] = bbcx;
-      zdce_arr[index-1][bx] = zdce;
-      zdcw_arr[index-1][bx] = zdcw;
-      zdcx_arr[index-1][bx] = zdcx;
-      vpde_arr[index-1][bx] = vpde;
-      vpdw_arr[index-1][bx] = vpdw;
-      vpdx_arr[index-1][bx] = vpdx;
+      for(int x=0; x<8; x++)
+      {
+        hor_arr[x][index-1][bx] = hor[x];     // no shift
+        ver_arr[x][index-1][bx] = ver[x];
+        trun_arr[x][index-1][bx] = trun[x];
+        front_arr[index-1][bx] = front;
+        back_arr[index-1][bx] = back;
+        goodTAC_arr[index-1][bx] = goodTAC;
+      };
     };
 
     runnum_arr[index-1] = runnum;
@@ -219,6 +238,93 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
   };
 
 
+  // BXING QA
+  // ---------------------------------------
+  Int_t NF_tmp = acc->GetMaximum("fi") + 1;
+  const Int_t NF = NF_tmp;
+  Int_t bxq_arr[NF][120]; 
+  Int_t fq_arr[NF];
+  for(int f=0; f<NF; f++) {
+    fq_arr[f]=0;
+    for(int g=0; g<120; g++) {
+      bxq_arr[f][g]=0;
+    };
+  };
+
+  // bad bXings
+  bxq_arr[1][22] = 1; // [fi] [bx]
+  bxq_arr[2][61] = 1;
+  bxq_arr[2][78] = 1;
+  bxq_arr[6][9] = 1;
+  bxq_arr[8][27] = 1;
+  bxq_arr[9][56] = 1;
+  bxq_arr[14][23] = 1;
+  bxq_arr[15][12] = 1;
+  bxq_arr[15][19] = 1;
+  bxq_arr[18][104] = 1;
+  bxq_arr[21][75] = 1;
+  bxq_arr[22][15] = 1;
+  bxq_arr[26][26] = 1;
+  bxq_arr[27][26] = 1;
+  bxq_arr[28][96] = 1;
+  bxq_arr[29][70] = 1;
+  bxq_arr[30][23] = 1;
+  bxq_arr[31][17] = 1;
+  bxq_arr[32][108] = 1;
+  bxq_arr[35][21] = 1;
+  bxq_arr[35][28] = 1;
+  bxq_arr[36][90] = 1;
+  bxq_arr[36][101] = 1;
+  bxq_arr[37][51] = 1;
+  bxq_arr[38][78] = 1;
+  bxq_arr[40][7] = 1;
+  bxq_arr[44][78] = 1;
+  bxq_arr[46][60] = 1;
+
+  // bad fills
+  fq_arr[1] = 2; // [fi]
+  fq_arr[9] = 1;
+  fq_arr[10] = 1;
+  fq_arr[13] = 1;
+  fq_arr[14] = 1;
+  fq_arr[15] = 1;
+  fq_arr[18] = 1;
+  fq_arr[20] = 4;
+  fq_arr[23] = 1;
+  fq_arr[25] = 1;
+  fq_arr[26] = 1;
+  fq_arr[27] = 1;
+  fq_arr[28] = 1;
+  fq_arr[29] = 3;
+  fq_arr[31] = 1;
+  fq_arr[32] = 1;
+  fq_arr[33] = 1;
+  fq_arr[35] = 1;
+  fq_arr[37] = 1;
+  fq_arr[38] = 1;
+  fq_arr[39] = 1;
+  fq_arr[40] = 1;
+  fq_arr[41] = 1;
+  fq_arr[42] = 1;
+  fq_arr[44] = 1;
+  fq_arr[46] = 1;
+  fq_arr[47] = 1;
+  fq_arr[48] = 4;
+
+  // mark few bXings after a bad bXing
+  Int_t npulse=3; // number of additional bXings to mark
+  for(int f=0; f<NF; f++) {
+    for(int g=0; g<120; g++) {
+      if(bxq_arr[f][g]==1) {
+        for(int nn=1; nn<=npulse; nn++) {
+          bxq_arr[f][(g+nn)%120] = 2;
+        };
+      };
+    };
+  };
+
+
+
   // fill restructured tree
   for(Int_t i=0; i<IMAX; i++)
   {
@@ -230,27 +336,28 @@ void mk_tree(const char * acc_file="datfiles/acc.dat")
     for(Int_t b=0; b<120; b++)
     {
       bx = b;
-      bbce = bbce_arr[i][b];
-      bbcw = bbcw_arr[i][b];
-      bbcx = bbcx_arr[i][b];
-      zdce = zdce_arr[i][b];
-      zdcw = zdcw_arr[i][b];
-      zdcx = zdcx_arr[i][b];
-      vpde = vpde_arr[i][b];
-      vpdw = vpdw_arr[i][b];
-      vpdx = vpdx_arr[i][b];
+      for(int x=0; x<8; x++)
+      {
+        hor_shift[x] = hor_arr[x][i][b];
+        ver_shift[x] = ver_arr[x][i][b];
+        trun_shift[x] = trun_arr[x][i][b];
+        front_shift = front_arr[i][b];
+        back_shift = front_arr[i][b];
+        goodTAC_shift = goodTAC_arr[i][b];
+      };
       tot_bx = tot_bx_arr[i][b];
       blue = blue_arr[i][b];
       yell = yell_arr[i][b];
       kicked = kicked_arr[i][b];
+      bxq = bxq_arr[fill_index][bx];
+      fq = fq_arr[fill_index];
       sca->Fill();
     };
   };
 
-  TFile * outfile = new TFile("counts.root","RECREATE");
   acc->Write("acc");
   sca->Write("sca");
-  printf("counts.root written\n");
+  printf("%s written\n",outfile_n.Data());
 };
       
 

@@ -1,3 +1,5 @@
+// SCALER READER FOR RELATIVE LUMINOSTY (BOARD 12)
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
